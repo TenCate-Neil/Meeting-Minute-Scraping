@@ -20,20 +20,48 @@ This scrapes the ~1,700 organizations listed at
 | `org_name` | Display name as listed on BoardBook |
 | `likely_school_district` | Name-pattern heuristic (`ISD`, `CISD`, `school district`, `academy`, `charter`, `ESD`, `RESA`) |
 | `include_in_rollout` | Defaults to the heuristic; **edit this column by hand** |
-| `state` | 2-letter USPS abbreviation, derived from each org's posted meeting address (see below) |
-| `county` | Resolved via the US Census Bureau's free public geocoder (see below) |
+| `state` | 2-letter USPS abbreviation (or `DC`) |
+| `county` | County name, or the correct local equivalent (Alaska borough/census area, etc.) |
+| `notes` | Why a row is blank/excluded, when it is - see below |
 
-`state`/`county` are not filled in by this step - run
-`python3 scripts/enrich_org_directory.py --csv districts/org_directory.csv`
-afterward (or anytime the directory is refreshed) to populate them. It makes
-two HTTP requests per org (fetch the org's BoardBook page, then geocode the
-address it finds), so a full run over ~1,700 orgs takes on the order of
-20-30 minutes; it saves progress every 25 rows and skips rows that already
-have a `state` unless you pass `--force`, so it's safe to interrupt and
-resume. On the last full run: 93% of orgs resolved a `state`, 77% resolved a
-`county` - the gap is orgs with no posted meeting address, or addresses
-(often rural) the Census geocoder's database doesn't cover. Those rows are
-left blank rather than guessed; see `docs/ARCHITECTURE.md` for detail.
+`state`/`county` are not filled in by this step. Populating them was a
+three-pass process, in increasing order of manual cost - re-run in this
+order if the directory is ever refreshed from scratch:
+
+1. `python3 scripts/enrich_org_directory.py --csv districts/org_directory.csv`
+   - scrapes each org's BoardBook page for its posted meeting address, then
+     geocodes it via the Census Bureau's free public geocoder. Two HTTP
+     requests per org, ~20-30 minutes for the full directory. Saves every 25
+     rows and skips rows that already have a `state` unless you pass
+     `--force`, so it's safe to interrupt and resume.
+2. Match remaining blanks by name against the NCES Common Core of Data
+   school-district directory (a free, no-key API at
+   `educationdata.urban.org` - see `docs/ARCHITECTURE.md`). Exact matches
+   first; then fuzzy matches constrained to a row's already-known `state`
+   with a high similarity threshold and a clear margin over the runner-up
+   (unconstrained cross-state fuzzy matching produced wrong matches in
+   testing - e.g. an Alaska "Petersburg School District" nearly matched a
+   same-named Texas ISD - so state-constraining is not optional).
+3. Whatever's still blank after that gets resolved by actual web search
+   (one query per org), reserved for last because it's the only step with
+   real per-row labor cost.
+
+On the full run: **99% of orgs resolved a `state`, 99% resolved a `county`**.
+Every row still blank has a reason recorded in `notes`:
+- Confirmed BoardBook demo/placeholder orgs (fictional addresses like
+  "123 Yellow Brick Road, Austin, TX 12345") - not real institutions.
+- Explicit test/trial/demo entries (name contains "test", "trial", "demo",
+  or "to be removed") - BoardBook's own sandbox accounts, never geocoded.
+- DC-based orgs - Washington DC has no counties, so `county` is correctly
+  empty, not missing.
+- A couple of genuinely ambiguous same-name districts (e.g. "Mitchell
+  School District" exists in both SD and OR, and BoardBook's own page for
+  that org has no address to disambiguate with) - left blank rather than
+  guessed.
+- One org search couldn't confirm as a real, locatable entity at all.
+
+None of these are guesses - if a row is blank, it's blank on purpose, and
+`notes` says why.
 
 ## Step 2 - Curate the district list (human step, don't skip)
 

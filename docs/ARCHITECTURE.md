@@ -75,6 +75,42 @@ has known holes in rural and tribal areas (e.g. an address in Belcourt, ND
 returned zero matches on every address variant tried) - it's a data
 availability gap in the Census dataset, not a bug in the parsing.
 
+### Closing the remaining gap
+
+After the address-scrape + geocoder pass, ~400 of 1,714 rows were still
+missing a `state` and/or `county` - mostly orgs with no posted BoardBook
+meeting (nothing to scrape an address from) or addresses the Census
+geocoder's TIGER/Line coverage didn't resolve. Two further passes closed
+most of that:
+
+1. **NCES Common Core of Data** - the Urban Institute's Education Data
+   Portal (`educationdata.urban.org/api/v1/school-districts/ccd/directory/`)
+   mirrors NCES's official K-12 district directory for free, no API key,
+   and includes a `county_name` field directly (no separate geocoding step
+   needed). The full dataset is only ~19,700 rows across 2 pages at 10,000
+   rows/page, so it's cheap to pull in full and match locally rather than
+   querying per-org - the API's own name-filter query parameter doesn't
+   actually filter server-side, so per-org queries would have been both
+   slower and no more accurate anyway. Matching was applied in two stages:
+   exact name match after normalizing common abbreviation differences
+   (`ISD` vs `Independent School District`, etc.), then a fuzzy match
+   **constrained to the row's already-known `state`** with a high
+   similarity threshold and a required margin over the second-best
+   candidate. The state constraint isn't optional - unconstrained fuzzy
+   matching by name similarity alone produced at least one wrong cross-state
+   match in testing (an Alaska "Petersburg School District" scored highest
+   against a same-named Texas ISD, since generic suffix words like "School
+   District" dominate the similarity score regardless of place).
+2. **Targeted web search** for whatever NCES didn't cover - mainly colleges,
+   education service centers, utility/protection districts, and a handful
+   of K-12 districts whose BoardBook name doesn't match any NCES entry
+   closely enough to trust automatically. Each of these was a genuine
+   per-org lookup, verified individually rather than pattern-matched.
+
+Every remaining blank row has a reason recorded in its `notes` column
+(confirmed placeholder, genuine cross-state name ambiguity, no county
+concept for DC, etc.) - see `docs/ROLLOUT.md` for the full breakdown.
+
 ## Downloading and parsing a document
 
 `GET /Public/DownloadAgenda/{orgId}?meeting={meetingId}` returns
