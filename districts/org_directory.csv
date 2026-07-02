@@ -882,31 +882,31 @@ org_id,org_name,likely_school_district,include_in_rollout,state,county
 1194,Lewisville Independent School District,True,True,TX,Denton County
 1257,Lexington ISD,True,True,TX,Lee County
 1259,Leyden High School District 212,True,True,,
-929,Liberty Hill ISD,True,True,,
-725,Liberty Independent School District,True,True,,
-822,Liberty-Eylau ISD,True,True,,
-1784,Libertyville Elementary District 70,False,False,,
-2565,Lincoln County School District,True,True,,
-2505,Lincoln ESD 156,True,True,,
-1204,Lincolnshire-Prairie View School District 103,True,True,,
-1270,Lincolnwood District 74,False,False,,
-3408,Linda Sokol Francis Brookfield Library,False,False,,
-2191,Lindale ISD,True,True,,
-739,Linden-Kildare CISD,True,True,,
-1578,Lindop School District 92,True,True,,
-1875,Lindsay ISD,True,True,,
-1947,Lipan ISD,True,True,,
-1795,Lisle CUSD 202,False,False,,
-807,Little Cypress-Mauriceville CISD,True,True,,
-860,Little Elm ISD,True,True,,
-903,Little Falls Community Schools,True,True,,
-1664,Livingston ISD,True,True,,
-1615,Livonia Public Schools School District,True,True,,
-681,Llano ISD,True,True,,
-714,Lockhart Independent School District,True,True,,
+929,Liberty Hill ISD,True,True,TX,Williamson County
+725,Liberty Independent School District,True,True,TX,Liberty County
+822,Liberty-Eylau ISD,True,True,TX,Bowie County
+1784,Libertyville Elementary District 70,False,False,IL,Lake County
+2565,Lincoln County School District,True,True,OR,Lincoln County
+2505,Lincoln ESD 156,True,True,IL,Cook County
+1204,Lincolnshire-Prairie View School District 103,True,True,IL,Lake County
+1270,Lincolnwood District 74,False,False,IL,Cook County
+3408,Linda Sokol Francis Brookfield Library,False,False,IL,Cook County
+2191,Lindale ISD,True,True,TX,Smith County
+739,Linden-Kildare CISD,True,True,TX,Cass County
+1578,Lindop School District 92,True,True,IL,Cook County
+1875,Lindsay ISD,True,True,TX,
+1947,Lipan ISD,True,True,TX,Hood County
+1795,Lisle CUSD 202,False,False,IL,DuPage County
+807,Little Cypress-Mauriceville CISD,True,True,TX,Orange County
+860,Little Elm ISD,True,True,TX,Denton County
+903,Little Falls Community Schools,True,True,MN,Morrison County
+1664,Livingston ISD,True,True,TX,Polk County
+1615,Livonia Public Schools School District,True,True,MI,Wayne County
+681,Llano ISD,True,True,TX,Llano County
+714,Lockhart Independent School District,True,True,TX,Caldwell County
 3335,Lockney ISD,True,True,,
-1496,Lockport School District 91,True,True,,
-740,Lombard School District 44,True,True,,
+1496,Lockport School District 91,True,True,IL,Will County
+740,Lombard School District 44,True,True,IL,DuPage County
 996,London Independent School District,True,True,,
 2315,Lone Oak Independent School District,True,True,,
 1444,Long Prairie-Grey Eagle Public Schools,True,True,,
