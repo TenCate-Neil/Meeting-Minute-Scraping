@@ -1,0 +1,292 @@
+[
+  {
+    "meeting_id": "744782",
+    "date": "June 18, 2026 at 6:15 PM",
+    "title": "Regular Meeting with Public Hearing",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 142
+  },
+  {
+    "meeting_id": "741322",
+    "date": "June 4, 2026 at 6:15 PM",
+    "title": "Regular Meeting with Public Hearing",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 273
+  },
+  {
+    "meeting_id": "738588",
+    "date": "May 21, 2026 at 6:15 PM",
+    "title": "Regular Meeting with Public Hearing",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 264
+  },
+  {
+    "meeting_id": "738502",
+    "date": "May 7, 2026 at 6:15 PM",
+    "title": "Regular Meeting",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 274
+  },
+  {
+    "meeting_id": "736449",
+    "date": "April 23, 2026 at 6:15 PM",
+    "title": "Regular Meeting",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 231
+  },
+  {
+    "meeting_id": "732083",
+    "date": "April 2, 2026 at 6:15 PM",
+    "title": "Regular Meeting",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 95
+  },
+  {
+    "meeting_id": "730471",
+    "date": "March 26, 2026 at 6:15 PM",
+    "title": "Special Meeting Budget Workshop",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 221
+  },
+  {
+    "meeting_id": "729626",
+    "date": "March 12, 2026 at 6:15 PM",
+    "title": "Regular Meeting",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 54
+  },
+  {
+    "meeting_id": "734075",
+    "date": "March 10, 2026 at 6:15 PM",
+    "title": "Special Meeting",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 2
+  },
+  {
+    "meeting_id": "731756",
+    "date": "February 24, 2026 at 6:15 PM",
+    "title": "Special Meeting - Grievance Hearing",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 2
+  },
+  {
+    "meeting_id": "725257",
+    "date": "February 19, 2026 at 6:15 PM",
+    "title": "Regular Meeting",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 253
+  },
+  {
+    "meeting_id": "725242",
+    "date": "February 5, 2026 at 6:15 PM",
+    "title": "Regular Meeting with Public Hearing",
+    "turf_mentioned": true,
+    "matches": [
+      {
+        "term": "Artificial Turf",
+        "context": "ura Marques: In \nfavor, Nekosi Nelson: In favor, Anna Smith: In favor. \nC. OPERATIONS  \n1. Consider Approval of Bond Oversight Committee Recommendation to Reallocate Bond Funds for the Replacement of Artificial Turf at AC Bible and Monroe Regional Stadiums  \nI move that the Board approve the Bond Oversight Committee's recommendation to reallocate up to $1,600,000 from 2023 Bond Project Line Item: Baseball & Soft",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Positive",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "Artificial Turf",
+        "context": "recommendation to reallocate up to $1,600,000 from 2023 Bond Project Line Item: Baseball & Softball Turf -  Cedar Park, Leander, Rouse, Vandegrift, and Vista Ridge to new bond project line \nitems for Artificial Turf at AC Bible and Monroe Regional Stadiums. This motion, made \nby Dr. Gloria Gonzales -Dholakia and seconded by  Sade Fashokun, passed six in favor \nand one opposed. Trish Bode: Opposed, Sade Fashokun:",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Mixed",
+        "outcome": "Approved"
+      }
+    ],
+    "summary": "2 turf-related mention(s) found (Artificial Turf); topic(s): Budget / capital expenditure; sentiment(s): Mixed, Positive.",
+    "error": null,
+    "pages": 270
+  },
+  {
+    "meeting_id": "727489",
+    "date": "CancelledJanuary 27, 2026 at 6:15 PM",
+    "title": "Special Meeting - Grievance HearingCancelled",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 2
+  },
+  {
+    "meeting_id": "723526",
+    "date": "January 22, 2026 at 6:15 PM",
+    "title": "Regular Meeting",
+    "turf_mentioned": true,
+    "matches": [
+      {
+        "term": "Artificial Turf",
+        "context": "ate \n2. Consider Approval of Leander ISD Interim Legislative Priorities \nC. OPERATIONS\n1. Consider Approval of Bond Oversight Committee Recommendation to \nReallocate Bond Funds for the Replacement of Artificial Turf at AC Bible and \nMonroe Regional Stadiums\n2. Discussion and Consider Approval of Pfluger Architects for Architectural \nDesign Services Related to the Repurposing of Faubion Elementary School\n3. Discu",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "Artificial Turf",
+        "context": "ting Agenda Item Information \n Meeting Date:  Thursday, January 22, 2026 \n Agenda Item:  Consider Approval of Bond Oversight Committee Recommendation to \n Reallocate Bond Funds for the Replacement of Artificial Turf at AC Bible \n and Monroe Regional Stadiums \n Purpose:  \u2610  Discussion Item/Report Only  \u2612  Action Requested \n Administrator Responsible:  Jeremy Trimble, M. Arch, Chief Operations Officer,  Jon Lux, B",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "Artificial Turf",
+        "context": "Chief Operations Officer,  Jon Lux, Bond \n Oversight Committee Chairman \n Attachments:  Consider Approval of Bond Oversight Committee Recommendation to \n Reallocate Bond Funds for the Replacement of Artificial Turf at AC Bible \n and Monroe Regional Stadiums Presentation \n Background Information \n As part of the high school baseball and softball artificial turf installation project, the district realized project",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "artificial turf",
+        "context": "n to \n Reallocate Bond Funds for the Replacement of Artificial Turf at AC Bible \n and Monroe Regional Stadiums Presentation \n Background Information \n As part of the high school baseball and softball artificial turf installation project, the district realized project \n savings.  Administration is requesting approval for a portion of those savings to be reallocated to replace the \n existing artificial turf at AC",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "artificial turf",
+        "context": "ftball artificial turf installation project, the district realized project \n savings.  Administration is requesting approval for a portion of those savings to be reallocated to replace the \n existing artificial turf at AC Bible and Monroe Regional Stadiums. \n The current artificial turf at both stadiums is approximately 10 years old and has reached the end of its expected \n service life. While the fields current",
+        "topic_type": "Facility construction or renovation project",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "artificial turf",
+        "context": "ct \n savings.  Administration is requesting approval for a portion of those savings to be reallocated to replace the \n existing artificial turf at AC Bible and Monroe Regional Stadiums. \n The current artificial turf at both stadiums is approximately 10 years old and has reached the end of its expected \n service life. While the fields currently pass GMAX (Maximum Gradient) safety testing, several areas are testin",
+        "topic_type": "Facility construction or renovation project",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "turf system",
+        "context": "ected \n service life. While the fields currently pass GMAX (Maximum Gradient) safety testing, several areas are testing \n close to the maximum allowable threshold. Due to the age and condition of the turf systems, continued degradation \n is expected, and waiting is not recommended from a safety and risk management perspective. \n Replacing the turf during the summer of 2026 would allow the work to be complete",
+        "topic_type": "Policy or safety discussion (e.g., heat, injury, environmental)",
+        "sentiment": "Negative",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "Artificial turf",
+        "context": "during the summer of 2026 would allow the work to be completed prior to the start of the next \n school year, minimizing disruption to student activities while proactively addressing safety concerns. Artificial turf \n replacement is a planned lifecycle cost, and utilizing existing bond savings allows the district to address this need \n without requesting additional bond funding. \n On January 13, 2026, the Bond O",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Negative",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "artificial turf",
+        "context": "lable bond funding source (  2023 Bond  Project Line Item: Baseball & Softball Turf \n - Cedar Park, Leander, Rouse, Vandegrift, and Vista Ridge) and create a dedicated project line item for stadium \n artificial turf replacement scope. \n Administrative Recommendation: \n Administration recommends that the Board approve the Bond Oversight Committee\u2019s recommendation to reallocate \n up to $1,600,000 from  2023 Bond",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "Artificial Turf",
+        "context": "e\u2019s recommendation to reallocate \n up to $1,600,000 from  2023 Bond  Project Line Item: Baseball & Softball Turf - Cedar Park, Leander, Rouse, \n Vandegrift, and Vista Ridge to fund the Replacement of Artificial Turf at AC Bible and Monroe Regional Stadiums  , \n and to establish the related bond project line items to complete this work. \n Sample Motion: \n I  move  that  the  Board  approve  the  Bond  Oversight",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "Artificial Turf",
+        "context": "locate  up  to  $1,600,000 \n from  2023  Bond  Project  Line  Item:  Baseball  &  Softball  Turf  -  Cedar  Park,  Leander,  Rouse,  Vandegrift,  and  Vista \n Ridge to new bond project line items for Artificial Turf at AC Bible and Monroe Regional Stadiums. \n248\n[Page 249] Consider Approval of Bond Oversight Committee \nRecommendation to Reallocate Bond Funds for the Replacement \nof Arti\ufb01cial Turf at AC Bible and",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "turf system",
+        "context": "ptions \nProject Scope: \n\u25cf Reallocate up to $1.6M  from the 2023 Bond  project line \nitem: Baseball & Softball Turf (Cedar Park, Leander, \nRouse, Vandegrift, Vista Ridge) \n\u25cf Replace existing arti\ufb01cial turf systems at AC Bible \nRegional Stadium  and Monroe Regional Stadium  (turf \nis ~10 years old, at expected service-life end) \n\u25cf Schedule replacement for Summer 2026  to minimize \nimpact to student activities",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      }
+    ],
+    "summary": "12 turf-related mention(s) found (Artificial Turf, Artificial turf, artificial turf, turf system); topic(s): Budget / capital expenditure, Facility construction or renovation project, Policy or safety discussion (e.g., heat, injury, environmental); sentiment(s): Negative, Neutral / factual.",
+    "error": null,
+    "pages": 284
+  },
+  {
+    "meeting_id": "722353",
+    "date": "January 8, 2026 at 6:15 PM",
+    "title": "Special Meeting Budget Workshop",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 49
+  },
+  {
+    "meeting_id": "567376",
+    "date": "CancelledFebruary 2, 2023 at 6:15 PM",
+    "title": "Special MeetingCancelled",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 61
+  },
+  {
+    "meeting_id": "527311",
+    "date": "CancelledMay 17, 2022 at 6:15 PM",
+    "title": "Special Meeting - Grievance HearingCancelled",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 2
+  },
+  {
+    "meeting_id": "450589",
+    "date": "CancelledFebruary 18, 2021 at 5:00 PM",
+    "title": "Special MeetingCancelled",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 16
+  },
+  {
+    "meeting_id": "450586",
+    "date": "CancelledFebruary 11, 2021 at 6:15 PM",
+    "title": "Regular MeetingCancelled",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 167
+  }
+]
