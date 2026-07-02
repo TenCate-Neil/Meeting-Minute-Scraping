@@ -53,6 +53,28 @@ with the org name as the link text, inside a flat `<ul class="list-unstyled">`
 - no pagination, no search API needed. `scripts/fetch_org_directory.py`
 scrapes this once to produce `districts/org_directory.csv`.
 
+## Deriving state and county
+
+BoardBook has no state/county field anywhere in the directory or org APIs.
+`scripts/enrich_org_directory.py` derives both, per org:
+
+1. Fetch `/Public/Organization/{orgId}` and take the first
+   `maps.google.com/?q=<address>` link on the page - this is the physical
+   meeting location BoardBook renders next to each meeting's date/time, and
+   it's present on essentially any org with at least one posted meeting.
+2. Parse the state straight out of that address string with a regex (either
+   `", TX 79311"` or `", Texas 78613"` -style endings both appear across
+   orgs) and normalize to the 2-letter USPS abbreviation.
+3. Send the full address to the US Census Bureau's public one-line
+   geocoder (`geocoding.geo.census.gov`, no API key required) to resolve the
+   county via TIGER/Line address ranges.
+
+Gaps are left blank, not guessed: some orgs have no posted meeting (no
+address to scrape at all), and the Census geocoder's address-range coverage
+has known holes in rural and tribal areas (e.g. an address in Belcourt, ND
+returned zero matches on every address variant tried) - it's a data
+availability gap in the Census dataset, not a bug in the parsing.
+
 ## Downloading and parsing a document
 
 `GET /Public/DownloadAgenda/{orgId}?meeting={meetingId}` returns

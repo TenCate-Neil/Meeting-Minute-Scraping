@@ -20,6 +20,20 @@ This scrapes the ~1,700 organizations listed at
 | `org_name` | Display name as listed on BoardBook |
 | `likely_school_district` | Name-pattern heuristic (`ISD`, `CISD`, `school district`, `academy`, `charter`, `ESD`, `RESA`) |
 | `include_in_rollout` | Defaults to the heuristic; **edit this column by hand** |
+| `state` | 2-letter USPS abbreviation, derived from each org's posted meeting address (see below) |
+| `county` | Resolved via the US Census Bureau's free public geocoder (see below) |
+
+`state`/`county` are not filled in by this step - run
+`python3 scripts/enrich_org_directory.py --csv districts/org_directory.csv`
+afterward (or anytime the directory is refreshed) to populate them. It makes
+two HTTP requests per org (fetch the org's BoardBook page, then geocode the
+address it finds), so a full run over ~1,700 orgs takes on the order of
+20-30 minutes; it saves progress every 25 rows and skips rows that already
+have a `state` unless you pass `--force`, so it's safe to interrupt and
+resume. On the last full run: 93% of orgs resolved a `state`, 77% resolved a
+`county` - the gap is orgs with no posted meeting address, or addresses
+(often rural) the Census geocoder's database doesn't cover. Those rows are
+left blank rather than guessed; see `docs/ARCHITECTURE.md` for detail.
 
 ## Step 2 - Curate the district list (human step, don't skip)
 
@@ -29,10 +43,10 @@ Open `districts/org_directory.csv` and review `include_in_rollout`:
   the edges - e.g. regional education service agencies (`ESD`, `RESA`)
   aren't single districts and may need separate handling; some districts use
   naming conventions the regex misses (spot-check a sample).
-- If you only care about a specific state or region, set
-  `include_in_rollout` to `False` for everything outside scope. There is no
-  state/region field from BoardBook directly - cross-reference `org_name`
-  against a known district list if you need geographic filtering.
+- If you only care about a specific state, filter on the `state` column
+  directly (now populated for ~93% of rows) and set `include_in_rollout` to
+  `False` for everything outside scope. For the ~7% with a blank `state`,
+  cross-reference `org_name` by hand if they matter to your scope.
 - Commit the curated CSV so the rollout is reproducible and reviewable.
 
 ## Step 3 - Smoke-test on a handful of districts
