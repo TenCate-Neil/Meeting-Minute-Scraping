@@ -332,555 +332,555 @@ org_id,org_name,likely_school_district,include_in_rollout,state,county
 1037,Comstock Public Schools,True,True,MI,Kalamazoo County
 2626,Concept Schools - Horizon Science Academy Twin Cities,True,True,MN,Hennepin County
 2355,Concept Schools - Minnesota Math and Science Academy,True,True,MN,Ramsey County
-1623,Concord Community Schools,True,True,,
-690,Connally ISD,True,True,,
-2392,Constantine Public Schools,True,True,,
-2031,Consumer Bankers Association,False,False,,
-3902,Cook County Land Bank Authority,False,False,,
-1792,Cook County School District 104,True,True,,
-2277,Cooper ISD,True,True,,
-1721,Coppell Independent School District,True,True,,
+1623,Concord Community Schools,True,True,MI,Jackson County
+690,Connally ISD,True,True,TX,
+2392,Constantine Public Schools,True,True,MI,St. Joseph County
+2031,Consumer Bankers Association,False,False,DC,District of Columbia
+3902,Cook County Land Bank Authority,False,False,IL,Cook County
+1792,Cook County School District 104,True,True,IL,Cook County
+2277,Cooper ISD,True,True,,Delta County
+1721,Coppell Independent School District,True,True,TX,Dallas County
 2693,Copper Country ISD,True,True,,
-665,Copperas Cove Independent School District,True,True,,
-1554,Corbett School District,True,True,,
-2046,Cordova School District,True,True,,
-898,CORPUS CHRISTI INDEPENDENT SCHOOL DISTRICT,True,True,,
-1701,Corrigan-Camden ISD,True,True,,
-642,Corsicana Independent School District,True,True,,
-1522,Corunna Public Schools,True,True,,
-1216,Corvallis School District 509J,True,True,,
-638,Cotulla ISD,True,True,,
-582,County School District,True,True,,
-618,County School District 2,True,True,,
-2596,County School District 3,True,True,,
-3900,County School District 4,True,True,,
+665,Copperas Cove Independent School District,True,True,TX,Coryell County
+1554,Corbett School District,True,True,OR,Multnomah County
+2046,Cordova School District,True,True,AK,
+898,CORPUS CHRISTI INDEPENDENT SCHOOL DISTRICT,True,True,TX,Nueces County
+1701,Corrigan-Camden ISD,True,True,TX,Polk County
+642,Corsicana Independent School District,True,True,TX,Navarro County
+1522,Corunna Public Schools,True,True,MI,Shiawassee County
+1216,Corvallis School District 509J,True,True,OR,Benton County
+638,Cotulla ISD,True,True,TX,
+582,County School District,True,True,TX,
+618,County School District 2,True,True,TX,
+2596,County School District 3,True,True,TX,
+3900,County School District 4,True,True,TX,
 2722,County School District TEST,True,True,,
-2708,Coupland Independent School District,True,True,,
-2424,Coventry Board of Education,False,False,,
-1506,Covert Public Schools,True,True,,
-1930,Covington ISD,True,True,,
-1845,Craig City School District,True,True,,
-2100,Crandall ISD,True,True,,
-1866,Cranfills Gap ISD,True,True,,
-2983,Crawford ISD,True,True,,
-1521,Crestwood School District,True,True,,
-1558,Creswell School District,True,True,,
-1408,Crete-Monee Board of Education,False,False,,
-857,Crockett County Consolidated Common School District,True,True,,
-891,Crockett Independent School District,True,True,,
-1822,Cromwell-Wright School,True,True,,
-1018,Crosby ISD,True,True,,
-1067,Crosby-Ironton ISD #182,True,True,,
-972,Crosbyton CISD,True,True,,
-2668,Cross Plains ISD,True,True,,
-2096,Cross Roads Independent School District,True,True,,
-978,Crosslake Community Schools,True,True,,
-655,Crowell ISD,True,True,,
-1587,Crystal City Independent School District,True,True,,
-3323,Crystal Lake Elementary,False,False,,
-718,Cuero Independent School District,True,True,,
-2249,Culberson County - Allamoore ISD,True,True,,
-2114,Cumby Collegiate ISD,True,True,,
+2708,Coupland Independent School District,True,True,TX,Williamson County
+2424,Coventry Board of Education,False,False,CT,Capitol Planning Region
+1506,Covert Public Schools,True,True,MI,Van Buren County
+1930,Covington ISD,True,True,TX,
+1845,Craig City School District,True,True,AK,
+2100,Crandall ISD,True,True,TX,
+1866,Cranfills Gap ISD,True,True,TX,Bosque County
+2983,Crawford ISD,True,True,TX,McLennan County
+1521,Crestwood School District,True,True,MI,Wayne County
+1558,Creswell School District,True,True,OR,
+1408,Crete-Monee Board of Education,False,False,IL,Will County
+857,Crockett County Consolidated Common School District,True,True,TX,Crockett County
+891,Crockett Independent School District,True,True,TX,Houston County
+1822,Cromwell-Wright School,True,True,MN,Carlton County
+1018,Crosby ISD,True,True,TX,Harris County
+1067,Crosby-Ironton ISD #182,True,True,MN,Crow Wing County
+972,Crosbyton CISD,True,True,TX,Crosby County
+2668,Cross Plains ISD,True,True,TX,Callahan County
+2096,Cross Roads Independent School District,True,True,TX,Henderson County
+978,Crosslake Community Schools,True,True,MN,Crow Wing County
+655,Crowell ISD,True,True,TX,
+1587,Crystal City Independent School District,True,True,TX,Zavala County
+3323,Crystal Lake Elementary,False,False,IL,McHenry County
+718,Cuero Independent School District,True,True,TX,DeWitt County
+2249,Culberson County - Allamoore ISD,True,True,TX,Culberson County
+2114,Cumby Collegiate ISD,True,True,TX,Hopkins County
 3932,Cushing ISD,True,True,,
-668,Cypress-Fairbanks ISD,True,True,,
-1315,D.C. Everest Area School District,True,True,,
-986,Daingerfield-Lone Star ISD,True,True,,
-1495,Dakota Community Unit District 201,False,False,,
-1129,Dalhart ISD,True,True,,
-2353,Dallas School District,True,True,,
-1945,Damon Independent School District,True,True,,
-944,Danbury Independent School District,True,True,,
-1734,Danville CCSD 118,False,False,,
-2826,Darien Public Schools District #61,True,True,,
-1581,Darlington Community School District,True,True,,
-1916,Darrouzett ISD,True,True,,
-914,Davis School District,True,True,,
-2573,Dawson-Boyd Public Schools,True,True,,
-639,Dayton Independent School District,True,True,,
-648,Decatur ISD,True,True,,
-2476,Deer River Schools ISD 317,True,True,,
-1747,Deerfield Public School District 109,True,True,,
-892,DeKalb ISD,True,True,,
-675,Del Valle ISD,True,True,,
-1338,Delano Public Schools,True,True,,
-1300,Dell City Independent School District,True,True,,
-1632,Delta College,False,False,,
+668,Cypress-Fairbanks ISD,True,True,TX,Harris County
+1315,D.C. Everest Area School District,True,True,WI,Marathon County
+986,Daingerfield-Lone Star ISD,True,True,TX,Morris County
+1495,Dakota Community Unit District 201,False,False,IL,
+1129,Dalhart ISD,True,True,TX,Dallam County
+2353,Dallas School District,True,True,OR,Polk County
+1945,Damon Independent School District,True,True,,Brazoria County
+944,Danbury Independent School District,True,True,TX,
+1734,Danville CCSD 118,False,False,IL,Vermilion County
+2826,Darien Public Schools District #61,True,True,IL,DuPage County
+1581,Darlington Community School District,True,True,WI,Lafayette County
+1916,Darrouzett ISD,True,True,TX,
+914,Davis School District,True,True,UT,Davis County
+2573,Dawson-Boyd Public Schools,True,True,MN,Lac qui Parle County
+639,Dayton Independent School District,True,True,TX,
+648,Decatur ISD,True,True,TX,Wise County
+2476,Deer River Schools ISD 317,True,True,MN,Itasca County
+1747,Deerfield Public School District 109,True,True,IL,Lake County
+892,DeKalb ISD,True,True,TX,Bowie County
+675,Del Valle ISD,True,True,TX,Travis County
+1338,Delano Public Schools,True,True,MN,Wright County
+1300,Dell City Independent School District,True,True,TX,
+1632,Delta College,False,False,MI,
 2625,Demo - Litchfield Community District 12,False,False,,
-3907,Denali Borough School District,True,True,,
-774,Denison ISD,True,True,,
-949,Denton ISD,True,True,,
-1942,Denver City Independent School District,True,True,,
-947,DeSoto Independent School District,True,True,,
-1724,Detroit ISD,True,True,,
-2364,Detroit Lakes Public Schools,True,True,,
-745,Devers ISD,True,True,,
-955,Devine ISD,True,True,,
-1865,Dew ISD,True,True,,
-746,Deweyville ISD,True,True,,
-1616,DeWitt Public Schools,True,True,,
-990,D'Hanis Independent School District,True,True,,
-1733,Diamond Lake School District 76,True,True,,
-2232,Diboll ISD,True,True,,
-2257,Dickinson Independent School District,True,True,,
-1100,Dickinson-Iron Intermediate School District,True,True,,
-852,Dilley Independent School District,True,True,,
-1775,Dillingham City School District,True,True,,
-773,Dime Box ISD,True,True,,
-3044,Divide County School District,True,True,,
-2485,Divide ISD,True,True,,
-1258,Dixon Public Schools #170,True,True,,
-2571,Dolton School District 149,True,True,,
-1299,Donna Independent School District,True,True,,
-1354,Doss CCSD,False,False,,
-1502,Douglas County School District,True,True,,
-1551,Douglas Education Service District,False,False,,
-2252,Douglass ISD,True,True,,
-3404,Downers Grove Grade School District 58,True,True,,
-634,DRIPPING SPRINGS INDEPENDENT SCHOOL DISTRICT,True,True,,
-1438,Driscoll ISD,True,True,,
-865,Dublin Independent School District,True,True,,
-1429,Duchesne County School District,True,True,,
-963,Duluth Public Schools,True,True,,
-1196,Dumas Independent School District,True,True,,
-858,Duncanville ISD,True,True,,
-1093,Dundee Community Schools,True,True,,
-1250,Dunlap School District 323,True,True,,
-1727,DuPage Area Occupational Education System,False,False,,
-1320,DuPage High School District 88,True,True,,
-1741,Dupo CUSD 196,False,False,,
-1097,Durand Area Schools,True,True,,
-1017,Eagle Mountain-Saginaw ISD,True,True,,
-2009,Eagle Pass ISD,True,True,,
-1542,Eagle Point School District 9,True,True,,
-2033,Early ISD,True,True,,
-1665,East Aurora School District 131,True,True,,
-715,East Chambers ISD,True,True,,
-2609,East China School District,True,True,,
-1524,East Grand Forks Public Schools,True,True,,
-1629,East Lansing Public Schools,True,True,,
-2651,East Mississippi Community College,False,False,,
-1688,East Moline School District 37,True,True,,
-2279,East Mountain High School,True,True,,
-1159,Eastern Carver County Schools,True,True,,
-2786,Eastern Upper Peninsula Intermediate School District,True,True,,
-3317,Eastland ISD,True,True,,
-1944,Eastpointe Community Schools,True,True,,
-1639,Eaton RESA,True,True,,
-1749,ECHO Joint Agreement,False,False,,
-1406,Ector County Independent School District,True,True,,
-2492,Ector ISD,True,True,,
-1455,Edcouch-Elsa ISD,True,True,,
-2821,Eddyville Charter School,True,True,,
-1816,Eden Valley-Watkins Schools,True,True,,
-844,Edgewood ISD-Bexar County,True,True,,
-1298,Edgewood ISD-Van Zandt County,True,True,,
-2636,Edina Public Schools,True,True,,
-1750,Edinburg Community Unit School District #4,True,True,,
-1044,Edinburg Consolidated Independent School District,True,True,,
-1614,Edna ISD,True,True,,
-1949,Education Service Center Region 13,False,False,,
-1988,"Education Service Center, Region 20",False,False,,
-1670,Effingham Community Schools,True,True,,
-901,El Campo Independent School District,True,True,,
-2552,Electra Independent School District,True,True,,
-2387,Elk Rapids Schools,True,True,,
-1307,Elkhart ISD,True,True,,
-2644,Elysian Fields ISD,True,True,,
-3325,Emmons School District 33,True,True,,
-862,Ennis ISD,True,True,,
-846,Era ISD,True,True,,
-2123,Española Public Schools District #55,True,True,,
-1566,Estacada School District,True,True,,
-2064,Estancia Municipal Schools,True,True,,
-1549,Eugene School District 4J,True,True,,
-722,Eustace ISD,True,True,,
-2044,Evadale ISD,True,True,,
-1479,Evanston Township High School District 202,True,True,,
-1247,Evanston/Skokie School District 65,True,True,,
-2017,Evansville Vanderburgh Public Library,False,False,,
-1843,Evant ISD,True,True,,
-1748,Evergreen Park Elementary SD124,False,False,,
-1454,Everman ISD,True,True,,
-3314,Exceptional Learners Collaborative,False,False,,
+3907,Denali Borough School District,True,True,AK,
+774,Denison ISD,True,True,TX,Grayson County
+949,Denton ISD,True,True,TX,Denton County
+1942,Denver City Independent School District,True,True,TX,Yoakum County
+947,DeSoto Independent School District,True,True,TX,Dallas County
+1724,Detroit ISD,True,True,TX,Red River County
+2364,Detroit Lakes Public Schools,True,True,MN,Becker County
+745,Devers ISD,True,True,TX,
+955,Devine ISD,True,True,TX,Medina County
+1865,Dew ISD,True,True,TX,Freestone County
+746,Deweyville ISD,True,True,TX,Newton County
+1616,DeWitt Public Schools,True,True,MI,Clinton County
+990,D'Hanis Independent School District,True,True,TX,Medina County
+1733,Diamond Lake School District 76,True,True,IL,Lake County
+2232,Diboll ISD,True,True,TX,Angelina County
+2257,Dickinson Independent School District,True,True,TX,Galveston County
+1100,Dickinson-Iron Intermediate School District,True,True,MI,Dickinson County
+852,Dilley Independent School District,True,True,TX,Frio County
+1775,Dillingham City School District,True,True,AK,
+773,Dime Box ISD,True,True,TX,Lee County
+3044,Divide County School District,True,True,ND,Divide County
+2485,Divide ISD,True,True,TX,Kerr County
+1258,Dixon Public Schools #170,True,True,IL,Lee County
+2571,Dolton School District 149,True,True,IL,Cook County
+1299,Donna Independent School District,True,True,TX,Hidalgo County
+1354,Doss CCSD,False,False,TX,Gillespie County
+1502,Douglas County School District,True,True,NV,
+1551,Douglas Education Service District,False,False,OR,Douglas County
+2252,Douglass ISD,True,True,TX,Nacogdoches County
+3404,Downers Grove Grade School District 58,True,True,IL,DuPage County
+634,DRIPPING SPRINGS INDEPENDENT SCHOOL DISTRICT,True,True,TX,Hays County
+1438,Driscoll ISD,True,True,TX,
+865,Dublin Independent School District,True,True,TX,Erath County
+1429,Duchesne County School District,True,True,UT,Duchesne County
+963,Duluth Public Schools,True,True,MN,
+1196,Dumas Independent School District,True,True,TX,Moore County
+858,Duncanville ISD,True,True,TX,Dallas County
+1093,Dundee Community Schools,True,True,MI,Monroe County
+1250,Dunlap School District 323,True,True,IL,Peoria County
+1727,DuPage Area Occupational Education System,False,False,IL,DuPage County
+1320,DuPage High School District 88,True,True,IL,DuPage County
+1741,Dupo CUSD 196,False,False,IL,St. Clair County
+1097,Durand Area Schools,True,True,MI,Shiawassee County
+1017,Eagle Mountain-Saginaw ISD,True,True,TX,
+2009,Eagle Pass ISD,True,True,TX,Maverick County
+1542,Eagle Point School District 9,True,True,OR,Jackson County
+2033,Early ISD,True,True,TX,Brown County
+1665,East Aurora School District 131,True,True,IL,Kane County
+715,East Chambers ISD,True,True,TX,
+2609,East China School District,True,True,MI,St. Clair County
+1524,East Grand Forks Public Schools,True,True,MN,Polk County
+1629,East Lansing Public Schools,True,True,MI,Ingham County
+2651,East Mississippi Community College,False,False,MS,Harrison County
+1688,East Moline School District 37,True,True,IL,Rock Island County
+2279,East Mountain High School,True,True,NM,Bernalillo County
+1159,Eastern Carver County Schools,True,True,MN,
+2786,Eastern Upper Peninsula Intermediate School District,True,True,MI,Chippewa County
+3317,Eastland ISD,True,True,TX,Eastland County
+1944,Eastpointe Community Schools,True,True,MI,Macomb County
+1639,Eaton RESA,True,True,MI,Eaton County
+1749,ECHO Joint Agreement,False,False,IL,Cook County
+1406,Ector County Independent School District,True,True,TX,Ector County
+2492,Ector ISD,True,True,TX,Fannin County
+1455,Edcouch-Elsa ISD,True,True,TX,Hidalgo County
+2821,Eddyville Charter School,True,True,OR,Lincoln County
+1816,Eden Valley-Watkins Schools,True,True,MN,Meeker County
+844,Edgewood ISD-Bexar County,True,True,TX,Bexar County
+1298,Edgewood ISD-Van Zandt County,True,True,TX,Van Zandt County
+2636,Edina Public Schools,True,True,MN,Hennepin County
+1750,Edinburg Community Unit School District #4,True,True,IL,
+1044,Edinburg Consolidated Independent School District,True,True,TX,Hidalgo County
+1614,Edna ISD,True,True,TX,Jackson County
+1949,Education Service Center Region 13,False,False,TX,Travis County
+1988,"Education Service Center, Region 20",False,False,TX,Bexar County
+1670,Effingham Community Schools,True,True,IL,Effingham County
+901,El Campo Independent School District,True,True,TX,Wharton County
+2552,Electra Independent School District,True,True,TX,Wichita County
+2387,Elk Rapids Schools,True,True,MI,Antrim County
+1307,Elkhart ISD,True,True,TX,
+2644,Elysian Fields ISD,True,True,TX,Harrison County
+3325,Emmons School District 33,True,True,IL,Lake County
+862,Ennis ISD,True,True,TX,Ellis County
+846,Era ISD,True,True,TX,Cooke County
+2123,Española Public Schools District #55,True,True,NM,Rio Arriba County
+1566,Estacada School District,True,True,OR,Clackamas County
+2064,Estancia Municipal Schools,True,True,NM,Torrance County
+1549,Eugene School District 4J,True,True,OR,Lane County
+722,Eustace ISD,True,True,TX,Henderson County
+2044,Evadale ISD,True,True,TX,
+1479,Evanston Township High School District 202,True,True,IL,Cook County
+1247,Evanston/Skokie School District 65,True,True,IL,Cook County
+2017,Evansville Vanderburgh Public Library,False,False,IN,Vanderburgh County
+1843,Evant ISD,True,True,TX,
+1748,Evergreen Park Elementary SD124,False,False,IL,Cook County
+1454,Everman ISD,True,True,TX,Tarrant County
+3314,Exceptional Learners Collaborative,False,False,IL,Lake County
 4068,Ezzell ISD,True,True,,
-1346,Fabens ISD,True,True,,
-695,Fairfield ISD,True,True,,
-1937,Falls City ISD,True,True,,
-1291,FALLS Education CO-OP,False,False,,
-1125,Faribault Public Schools,True,True,,
-1008,Farmersville ISD,True,True,,
-1154,Farmington Municipal Schools,True,True,,
-1087,Farmington Public Schools,True,True,,
-1064,Fayetteville Independent School District,True,True,,
-1427,FENTON COMMUNITY HIGH SCHOOL DISTRICT 100,True,True,,
-1535,Fern Ridge SD 28J,False,False,,
-1323,Ferndale Public Schools,True,True,,
-2326,Ferris ISD,True,True,,
-2038,First 5 LA,False,False,,
-2119,First 5 Riverside,False,False,,
-1609,Flat Rock Community Schools,True,True,,
-1774,Flatonia ISD,True,True,,
-1324,Flint Community Schools,True,True,,
-1132,Floodwood School District #698,True,True,,
-677,Florence Independent School District,True,True,,
-1706,Floresville ISD,True,True,,
-1439,Flour Bluff Independent School District,True,True,,
-2287,Floydada Collegiate ISD,True,True,,
-1823,Foley ISD 51,True,True,,
-2021,Follett ISD,True,True,,
+1346,Fabens ISD,True,True,TX,
+695,Fairfield ISD,True,True,TX,Freestone County
+1937,Falls City ISD,True,True,TX,Karnes County
+1291,FALLS Education CO-OP,False,False,TX,Falls County
+1125,Faribault Public Schools,True,True,MN,Rice County
+1008,Farmersville ISD,True,True,TX,Collin County
+1154,Farmington Municipal Schools,True,True,NM,San Juan County
+1087,Farmington Public Schools,True,True,MI,Oakland County
+1064,Fayetteville Independent School District,True,True,TX,Fayette County
+1427,FENTON COMMUNITY HIGH SCHOOL DISTRICT 100,True,True,IL,DuPage County
+1535,Fern Ridge SD 28J,False,False,OR,Lane County
+1323,Ferndale Public Schools,True,True,MI,Oakland County
+2326,Ferris ISD,True,True,TX,Ellis County
+2038,First 5 LA,False,False,CA,Los Angeles County
+2119,First 5 Riverside,False,False,CA,Riverside County
+1609,Flat Rock Community Schools,True,True,MI,Wayne County
+1774,Flatonia ISD,True,True,TX,Fayette County
+1324,Flint Community Schools,True,True,MI,Genesee County
+1132,Floodwood School District #698,True,True,MN,St. Louis County
+677,Florence Independent School District,True,True,TX,Williamson County
+1706,Floresville ISD,True,True,TX,Wilson County
+1439,Flour Bluff Independent School District,True,True,TX,Nueces County
+2287,Floydada Collegiate ISD,True,True,TX,Floyd County
+1823,Foley ISD 51,True,True,MN,Benton County
+2021,Follett ISD,True,True,TX,
 3194,Forest Grove School District,True,True,,
-691,Forest Hills Public Schools,True,True,,
-1059,Forest Lake Area Schools,True,True,,
+691,Forest Hills Public Schools,True,True,MI,Kent County
+1059,Forest Lake Area Schools,True,True,MN,Washington County
 4067,Forest Park Schools,True,True,,
-637,Forney ISD,True,True,,
-1249,Forrestville Valley School District 221,True,True,,
-834,Forsan ISD,True,True,,
-649,Fort Bend Independent School District,True,True,,
-2300,Fort Hancock Independent School District,True,True,,
-1984,Fort Sam Houston ISD,True,True,,
-1150,Fort Smith Public Schools,True,True,,
-733,Fort Worth ISD,True,True,,
-2001,Four Rivers Special Education District,False,False,,
-2308,Frank Phillips College,False,False,,
-1726,Frankfort CUSD 168,False,False,,
-3252,Franklin Community Schools,True,True,,
-3218,Franklin Independent School District,True,True,,
-2208,FRANKSTON ISD,True,True,,
-1115,Fraser Public Schools,True,True,,
-1088,"Frazee-Vergas Public Schools, ISD 23",True,True,,
-2070,Frederic School District,True,True,,
-825,Fredericksburg ISD,True,True,,
-1317,Freeland Community School District,True,True,,
-1001,Freer ISD,True,True,,
-1732,Fremont School District No. 79,True,True,,
-1114,Fridley Public Schools,True,True,,
+637,Forney ISD,True,True,TX,
+1249,Forrestville Valley School District 221,True,True,IL,Ogle County
+834,Forsan ISD,True,True,TX,
+649,Fort Bend Independent School District,True,True,TX,Fort Bend County
+2300,Fort Hancock Independent School District,True,True,TX,
+1984,Fort Sam Houston ISD,True,True,TX,Bexar County
+1150,Fort Smith Public Schools,True,True,AR,Sebastian County
+733,Fort Worth ISD,True,True,TX,Tarrant County
+2001,Four Rivers Special Education District,False,False,IL,Morgan County
+2308,Frank Phillips College,False,False,TX,Hutchinson County
+1726,Frankfort CUSD 168,False,False,IL,Franklin County
+3252,Franklin Community Schools,True,True,IN,Johnson County
+3218,Franklin Independent School District,True,True,TX,Robertson County
+2208,FRANKSTON ISD,True,True,TX,Anderson County
+1115,Fraser Public Schools,True,True,MI,Macomb County
+1088,"Frazee-Vergas Public Schools, ISD 23",True,True,MN,Becker County
+2070,Frederic School District,True,True,WI,Polk County
+825,Fredericksburg ISD,True,True,TX,Gillespie County
+1317,Freeland Community School District,True,True,MI,Saginaw County
+1001,Freer ISD,True,True,TX,
+1732,Fremont School District No. 79,True,True,IL,Lake County
+1114,Fridley Public Schools,True,True,MN,Anoka County
 2126,Friendship Public Charter School,True,True,,
-3892,Friendswood ISD,True,True,,
-1262,Friona ISD,True,True,,
-2014,Frisco ISD,True,True,,
-2331,Frost ISD,True,True,,
+3892,Friendswood ISD,True,True,TX,Galveston County
+1262,Friona ISD,True,True,TX,Parmer County
+2014,Frisco ISD,True,True,TX,Collin County
+2331,Frost ISD,True,True,TX,Navarro County
 2482,Fruitport Community Schools,True,True,,
-1938,Fruitvale ISD,True,True,,
-1426,Gail Borden Public Library District,False,False,,
-2214,Gainesville ISD,True,True,,
+1938,Fruitvale ISD,True,True,TX,
+1426,Gail Borden Public Library District,False,False,IL,Kane County
+2214,Gainesville ISD,True,True,TX,Cooke County
 2586,Galena City School District,True,True,,
-1860,Galena Park ISD,True,True,,
-1505,Galveston College,False,False,,
-1941,Galveston Independent School District,True,True,,
-2306,Ganado ISD,True,True,,
-3241,Garfield School District,True,True,,
-1084,Garland Independent School District,True,True,,
-730,Garner ISD,True,True,,
-2055,Garrison ISD,True,True,,
-884,Gary ISD,True,True,,
-910,Gatesville ISD,True,True,,
-1251,Gavin School District 37,True,True,,
-913,Gaylord Community Schools,True,True,,
-1667,Geneva CUSD 304,False,False,,
-966,Georgetown ISD,True,True,,
-1731,Georgetown-Ridge Farm Unit No.4,False,False,,
-710,Giddings ISD,True,True,,
-1768,Gilmer ISD,True,True,,
-2202,Gladewater Independent School District,True,True,,
-1363,Glasscock County ISD,True,True,,
-2417,Glastonbury Public Schools,True,True,,
-1309,Glen Ellyn School District 41,True,True,,
-732,Glen Rose Independent School District,True,True,,
-1729,Glenbard Township High School Dist #87,True,True,,
-1234,Glencoe Public Library,False,False,,
+1860,Galena Park ISD,True,True,TX,Harris County
+1505,Galveston College,False,False,TX,
+1941,Galveston Independent School District,True,True,TX,Galveston County
+2306,Ganado ISD,True,True,TX,Jackson County
+3241,Garfield School District,True,True,UT,Garfield County
+1084,Garland Independent School District,True,True,TX,Dallas County
+730,Garner ISD,True,True,TX,Parker County
+2055,Garrison ISD,True,True,TX,Nacogdoches County
+884,Gary ISD,True,True,TX,Panola County
+910,Gatesville ISD,True,True,TX,Coryell County
+1251,Gavin School District 37,True,True,IL,Lake County
+913,Gaylord Community Schools,True,True,MI,Otsego County
+1667,Geneva CUSD 304,False,False,IL,Kane County
+966,Georgetown ISD,True,True,TX,Williamson County
+1731,Georgetown-Ridge Farm Unit No.4,False,False,IL,Vermilion County
+710,Giddings ISD,True,True,TX,Lee County
+1768,Gilmer ISD,True,True,TX,Upshur County
+2202,Gladewater Independent School District,True,True,TX,Gregg County
+1363,Glasscock County ISD,True,True,TX,Glasscock County
+2417,Glastonbury Public Schools,True,True,CT,Capitol Planning Region
+1309,Glen Ellyn School District 41,True,True,IL,DuPage County
+732,Glen Rose Independent School District,True,True,TX,
+1729,Glenbard Township High School Dist #87,True,True,IL,DuPage County
+1234,Glencoe Public Library,False,False,IL,Cook County
 4124,Globe Unified School District,True,True,,
-2605,Godley ISD,True,True,,
-2747,Gogebic Ontonagon Intermediate School District,True,True,,
-780,Goldendale School District,True,True,,
-881,Goldthwaite CISD,True,True,,
-2600,Goliad ISD,True,True,,
-950,Gonzales Independent School District,True,True,,
-971,Goodhue County Education District,False,False,,
-2502,Goodwill Central Texas/Excel,False,False,,
-1195,Goose Creek CISD,True,True,,
-1081,Gordon ISD,True,True,,
-2393,GPM Life Insurance,False,False,,
-987,Grady ISD,True,True,,
-800,Graham ISD,True,True,,
-772,Granbury ISD,True,True,,
-3227,Grand Haven Area Public Schools,True,True,,
-948,Grand Prairie Independent School District,True,True,,
-824,Grand Saline ISD,True,True,,
+2605,Godley ISD,True,True,TX,Johnson County
+2747,Gogebic Ontonagon Intermediate School District,True,True,MI,Ontonagon County
+780,Goldendale School District,True,True,WA,Klickitat County
+881,Goldthwaite CISD,True,True,TX,
+2600,Goliad ISD,True,True,TX,Goliad County
+950,Gonzales Independent School District,True,True,TX,Gonzales County
+971,Goodhue County Education District,False,False,MN,Goodhue County
+2502,Goodwill Central Texas/Excel,False,False,TX,Travis County
+1195,Goose Creek CISD,True,True,TX,
+1081,Gordon ISD,True,True,TX,Palo Pinto County
+2393,GPM Life Insurance,False,False,TX,Bexar County
+987,Grady ISD,True,True,TX,Martin County
+800,Graham ISD,True,True,TX,Young County
+772,Granbury ISD,True,True,TX,Hood County
+3227,Grand Haven Area Public Schools,True,True,MI,Ottawa County
+948,Grand Prairie Independent School District,True,True,TX,Dallas County
+824,Grand Saline ISD,True,True,TX,Van Zandt County
 3189,Grandfalls-Royalty Independent School District,True,True,,
-1755,Grandview ISD,True,True,,
+1755,Grandview ISD,True,True,TX,Johnson County
 3041,Grandville Public Schools,True,True,,
-1848,Granger ISD,True,True,,
-2744,Granite School District,True,True,,
-1751,Grant Community High School District 124,True,True,,
-3326,Grant School District #3,True,True,,
-2168,Granton Area School District,True,True,,
-734,Grape Creek ISD,True,True,,
-1198,Grapevine-Colleyville ISD,True,True,,
-1371,Gratiot County Courthouse,False,False,,
-1736,Grayslake CHSD 127,False,False,,
-1233,Grayson College,False,False,,
-763,Greasewood Springs Community Schools,True,True,,
-2005,Greater Albany School District 8J,True,True,,
-1219,Greenbush Middle River ISD 2683,True,True,,
-682,Greenville Electric Utility System (GEUS),False,False,,
-1948,Greenville ISD,True,True,,
-729,Greenwood Independent School District,True,True,,
-1396,Gregory-Portland ISD,True,True,,
-3214,Gresham-Barlow School District,True,True,,
-670,Groesbeck ISD,True,True,,
-1884,Groom Independent School District,True,True,,
-1334,Grosse Ile Township Schools,True,True,,
-3296,Gulf Coast Protection District,False,False,,
-1057,Gull Lake Community Schools,True,True,,
-1238,Gunter ISD,True,True,,
-1244,Gurnee School District 56,True,True,,
-2278,Hale Center ISD,True,True,,
-2193,Hallettsville ISD,True,True,,
-1976,Hallsville ISD,True,True,,
-1630,Hamilton Community Schools,True,True,,
-951,Hamilton ISD,True,True,,
-917,Hamlin Collegiate ISD,True,True,,
-792,Hamshire-Fannett ISD,True,True,,
-2645,Hancock County School District,True,True,,
-2251,Happy ISD,True,True,,
+1848,Granger ISD,True,True,TX,Williamson County
+2744,Granite School District,True,True,UT,Salt Lake County
+1751,Grant Community High School District 124,True,True,IL,Lake County
+3326,Grant School District #3,True,True,OR,
+2168,Granton Area School District,True,True,WI,Clark County
+734,Grape Creek ISD,True,True,TX,
+1198,Grapevine-Colleyville ISD,True,True,TX,Tarrant County
+1371,Gratiot County Courthouse,False,False,,Gratiot County
+1736,Grayslake CHSD 127,False,False,IL,Lake County
+1233,Grayson College,False,False,TX,Grayson County
+763,Greasewood Springs Community Schools,True,True,AZ,
+2005,Greater Albany School District 8J,True,True,OR,Linn County
+1219,Greenbush Middle River ISD 2683,True,True,MN,Roseau County
+682,Greenville Electric Utility System (GEUS),False,False,TX,
+1948,Greenville ISD,True,True,TX,Hunt County
+729,Greenwood Independent School District,True,True,TX,
+1396,Gregory-Portland ISD,True,True,TX,
+3214,Gresham-Barlow School District,True,True,OR,Multnomah County
+670,Groesbeck ISD,True,True,TX,
+1884,Groom Independent School District,True,True,TX,
+1334,Grosse Ile Township Schools,True,True,MI,Wayne County
+3296,Gulf Coast Protection District,False,False,TX,
+1057,Gull Lake Community Schools,True,True,MI,Kalamazoo County
+1238,Gunter ISD,True,True,TX,Grayson County
+1244,Gurnee School District 56,True,True,IL,Lake County
+2278,Hale Center ISD,True,True,TX,Hale County
+2193,Hallettsville ISD,True,True,TX,Lavaca County
+1976,Hallsville ISD,True,True,TX,
+1630,Hamilton Community Schools,True,True,MI,Allegan County
+951,Hamilton ISD,True,True,TX,Hamilton County
+917,Hamlin Collegiate ISD,True,True,TX,Jones County
+792,Hamshire-Fannett ISD,True,True,TX,Jefferson County
+2645,Hancock County School District,True,True,MS,Hancock County
+2251,Happy ISD,True,True,TX,
 1180,Harbor Springs Public Schools,True,True,,
-1123,Hardin ISD,True,True,,
-952,Hardin-Jefferson ISD,True,True,,
-1981,Harlandale ISD,True,True,,
-1725,Harlem Consolidated School District,True,True,,
-1864,Harleton Independent School District,True,True,,
-1015,Harlingen Consolidated Independent School District,True,True,,
-942,Harmony ISD,True,True,,
-1420,Harper Creek Community Schools,True,True,,
-1638,Harper Woods School District,True,True,,
-2161,Harrison County School Board,True,True,,
-1264,Harrison School District 36,True,True,,
-1028,Hart Public Schools,True,True,,
-937,Harts Bluff ISD,True,True,,
-1227,Harvard CUSD 50,False,False,,
-1735,Harvey School District 152,True,True,,
-2723,Haskell CISD,True,True,,
-931,Hastings Public Schools,True,True,,
-678,Hawkins Independent School District,True,True,,
-1858,Hays CISD,True,True,,
-1401,Hazel Crest School District 152 1/2,True,True,,
-1527,Hazel Park Schools,True,True,,
-2705,Hearne ISD,True,True,,
-3207,Heart of Texas Behavioral Health Network,False,False,,
-2684,Hedley Independent School District,True,True,,
-2585,Helix School District,True,True,,
+1123,Hardin ISD,True,True,TX,Liberty County
+952,Hardin-Jefferson ISD,True,True,TX,Hardin County
+1981,Harlandale ISD,True,True,TX,Bexar County
+1725,Harlem Consolidated School District,True,True,IL,
+1864,Harleton Independent School District,True,True,TX,
+1015,Harlingen Consolidated Independent School District,True,True,TX,Cameron County
+942,Harmony ISD,True,True,TX,Upshur County
+1420,Harper Creek Community Schools,True,True,MI,Calhoun County
+1638,Harper Woods School District,True,True,MI,Wayne County
+2161,Harrison County School Board,True,True,MS,Harrison County
+1264,Harrison School District 36,True,True,IL,McHenry County
+1028,Hart Public Schools,True,True,MI,Oceana County
+937,Harts Bluff ISD,True,True,TX,Titus County
+1227,Harvard CUSD 50,False,False,IL,McHenry County
+1735,Harvey School District 152,True,True,,Cook County
+2723,Haskell CISD,True,True,TX,Haskell County
+931,Hastings Public Schools,True,True,MN,Dakota County
+678,Hawkins Independent School District,True,True,TX,Wood County
+1858,Hays CISD,True,True,TX,Hays County
+1401,Hazel Crest School District 152 1/2,True,True,IL,Cook County
+1527,Hazel Park Schools,True,True,MI,Oakland County
+2705,Hearne ISD,True,True,TX,Robertson County
+3207,Heart of Texas Behavioral Health Network,False,False,TX,McLennan County
+2684,Hedley Independent School District,True,True,TX,
+2585,Helix School District,True,True,OR,Umatilla County
 2578,Hemphill ISD,True,True,,
-2241,Hempstead Independent School District,True,True,,
-958,Henderson ISD,True,True,,
-755,Henrietta ISD,True,True,,
-2218,Hereford ISD,True,True,,
-2711,Hermantown Community Schools,True,True,,
-1544,Hermiston School District,True,True,,
-656,Hico ISD,True,True,,
-2062,Hidalgo ISD,True,True,,
+2241,Hempstead Independent School District,True,True,TX,Waller County
+958,Henderson ISD,True,True,TX,Rusk County
+755,Henrietta ISD,True,True,TX,
+2218,Hereford ISD,True,True,TX,Deaf Smith County
+2711,Hermantown Community Schools,True,True,MN,St. Louis County
+1544,Hermiston School District,True,True,OR,Umatilla County
+656,Hico ISD,True,True,TX,
+2062,Hidalgo ISD,True,True,TX,Hidalgo County
 3342,High Island ISD,True,True,,
 1398,Highland ISD,True,True,,
-2024,Highland Park ISD- Dallas County,True,True,,
-935,Highland Park ISD-Potter County,True,True,,
-1074,Hill City School,True,True,,
-1013,Hill College,False,False,,
-2106,Hill County SSA,False,False,,
-953,Hillsboro ISD,True,True,,
-1540,Hillsboro School District 1J,True,True,,
-1228,Hinckley-Big Rock CUSD No.429,False,False,,
-1009,Hitchcock ISD,True,True,,
-2290,Holland ISD,True,True,,
-1928,Holland Township School,True,True,,
-2384,Hollandale School District,True,True,,
-1881,Holliday Independent School District,True,True,,
-1471,Holly Area Schools,True,True,,
-974,Holmes County Consolidated School District,True,True,,
+2024,Highland Park ISD- Dallas County,True,True,TX,Dallas County
+935,Highland Park ISD-Potter County,True,True,TX,
+1074,Hill City School,True,True,MN,Aitkin County
+1013,Hill College,False,False,TX,Bosque County
+2106,Hill County SSA,False,False,TX,Hill County
+953,Hillsboro ISD,True,True,TX,Hill County
+1540,Hillsboro School District 1J,True,True,OR,Washington County
+1228,Hinckley-Big Rock CUSD No.429,False,False,IL,DeKalb County
+1009,Hitchcock ISD,True,True,TX,Galveston County
+2290,Holland ISD,True,True,TX,Bell County
+1928,Holland Township School,True,True,NJ,Hunterdon County
+2384,Hollandale School District,True,True,MS,Washington County
+1881,Holliday Independent School District,True,True,TX,
+1471,Holly Area Schools,True,True,MI,Oakland County
+974,Holmes County Consolidated School District,True,True,MS,Harrison County
 3237,Holt Public Schools,True,True,,
-2069,Homedale Jt. School District 370,True,True,,
-1742,Homer CCSD 33C,False,False,,
+2069,Homedale Jt. School District 370,True,True,ID,Owyhee County
+1742,Homer CCSD 33C,False,False,IL,Will County
 3639,Homewood-Flossmoor Community HSD 233,False,False,,
-640,Hondo Independent School District,True,True,,
-1224,Honey Grove I.S.D.,True,True,,
-2309,Hooks ISD,True,True,,
-2035,Horizon Montessori Public Schools,True,True,,
-1030,Houghton Lake Community Schools,True,True,,
-3045,Houston City College,False,False,,
-1861,Howard College,False,False,,
-1819,Howard Lake-Waverly-Winsted Public Schools,True,True,,
-3605,Howe Independent School District,True,True,,
-1421,Howell Public Schools,True,True,,
-2013,Hubbard ISD - Hill County,True,True,,
-975,Huckabay ISD,True,True,,
-1672,Hudson ISD,True,True,,
+640,Hondo Independent School District,True,True,TX,Medina County
+1224,Honey Grove I.S.D.,True,True,TX,Fannin County
+2309,Hooks ISD,True,True,TX,Bowie County
+2035,Horizon Montessori Public Schools,True,True,TX,
+1030,Houghton Lake Community Schools,True,True,MI,Roscommon County
+3045,Houston City College,False,False,TX,Harris County
+1861,Howard College,False,False,TX,Howard County
+1819,Howard Lake-Waverly-Winsted Public Schools,True,True,MN,Wright County
+3605,Howe Independent School District,True,True,TX,Grayson County
+1421,Howell Public Schools,True,True,MI,Livingston County
+2013,Hubbard ISD - Hill County,True,True,TX,Hill County
+975,Huckabay ISD,True,True,TX,Erath County
+1672,Hudson ISD,True,True,TX,Angelina County
 3245,Hudsonville Public Schools,True,True,,
-2641,Huffman ISD,True,True,,
-946,Huntington ISD,True,True,,
-1422,Huntley Community School District 158,True,True,,
-736,Huntsville ISD,True,True,,
-961,Huron Intermediate School District,True,True,,
-749,Hutto ISD,True,True,,
-1529,Hydaburg City School District,True,True,,
-2327,Idalou ISD,True,True,,
-2697,Iditarod Area School District,True,True,,
-701,Illini Central CUSD #189,False,False,,
-2652,Illinois Eastern Community Colleges,False,False,,
-1730,Illinois School District Agency,True,True,,
-941,Imlay City Community Schools,True,True,,
-1589,Independent School District #272 Eden Prairie Schools,True,True,,
-1332,Independent School District #361,True,True,,
-1297,Independent School District 31,True,True,,
-1817,Independent School District 316,True,True,,
-1516,Independent School District 748,True,True,,
-1055,Independent School District 761,True,True,,
-1692,Independent School District No. 465,True,True,,
-1274,Ingham Intermediate School District,True,True,,
-787,Ingleside ISD,True,True,,
-3327,Ingram ISD,True,True,,
-1201,Intermediate District 287,False,False,,
-1033,Intermediate School District 917,True,True,,
-3364,Ione School District,True,True,,
-1181,Ionia County Intermediate School District,True,True,,
-1626,Ionia Public Schools,True,True,,
-2788,Iowa Park CISD,True,True,,
-1440,Ira ISD,True,True,,
+2641,Huffman ISD,True,True,TX,Harris County
+946,Huntington ISD,True,True,TX,Angelina County
+1422,Huntley Community School District 158,True,True,IL,
+736,Huntsville ISD,True,True,TX,Walker County
+961,Huron Intermediate School District,True,True,MI,Huron County
+749,Hutto ISD,True,True,TX,Williamson County
+1529,Hydaburg City School District,True,True,AK,
+2327,Idalou ISD,True,True,TX,Lubbock County
+2697,Iditarod Area School District,True,True,AK,
+701,Illini Central CUSD #189,False,False,IL,Mason County
+2652,Illinois Eastern Community Colleges,False,False,IL,Richland County
+1730,Illinois School District Agency,True,True,IL,Cook County
+941,Imlay City Community Schools,True,True,MI,Lapeer County
+1589,Independent School District #272 Eden Prairie Schools,True,True,MN,Hennepin County
+1332,Independent School District #361,True,True,MN,Koochiching County
+1297,Independent School District 31,True,True,MN,Beltrami County
+1817,Independent School District 316,True,True,MN,Itasca County
+1516,Independent School District 748,True,True,MN,Stearns County
+1055,Independent School District 761,True,True,MN,Steele County
+1692,Independent School District No. 465,True,True,MN,Meeker County
+1274,Ingham Intermediate School District,True,True,MI,Ingham County
+787,Ingleside ISD,True,True,TX,San Patricio County
+3327,Ingram ISD,True,True,TX,
+1201,Intermediate District 287,False,False,MN,Hennepin County
+1033,Intermediate School District 917,True,True,MN,
+3364,Ione School District,True,True,OR,Morrow County
+1181,Ionia County Intermediate School District,True,True,MI,Ionia County
+1626,Ionia Public Schools,True,True,MI,Ionia County
+2788,Iowa Park CISD,True,True,TX,Wichita County
+1440,Ira ISD,True,True,TX,Scurry County
 3319,Irion County ISD,True,True,,
-2749,Iron Mountain Public Schools,True,True,,
-828,Irving Independent School District,True,True,,
-1743,ISD #186 - Pequot Lakes Public Schools,True,True,,
-1352,ISD #696 - Ely Public Schools,True,True,,
-1694,ISD 199 Inver Grove Heights Schools,True,True,,
-1696,ISD 640-Wabasso Public Schools,True,True,,
-2171,Italy Independent School District,True,True,,
-835,Itasca Independent School District,True,True,,
-1744,Itasca School District #10,True,True,,
-1387,J. Sterling Morton High School District 201,True,True,,
-1999,Jackson County School District,True,True,,
-778,Jackson Local Schools,True,True,,
-1207,Jacksonville ISD,True,True,,
-1241,Jacksonville School District #117,True,True,,
-1933,Jarrell ISD,True,True,,
-2063,Jasper ISD,True,True,,
-2477,Jayton-Girard ISD,True,True,,
-982,Jefferson Independent School District,True,True,,
-1644,Jenison Public Schools,True,True,,
+2749,Iron Mountain Public Schools,True,True,MI,Dickinson County
+828,Irving Independent School District,True,True,TX,Dallas County
+1743,ISD #186 - Pequot Lakes Public Schools,True,True,MN,Crow Wing County
+1352,ISD #696 - Ely Public Schools,True,True,MN,St. Louis County
+1694,ISD 199 Inver Grove Heights Schools,True,True,MN,Dakota County
+1696,ISD 640-Wabasso Public Schools,True,True,MN,Redwood County
+2171,Italy Independent School District,True,True,TX,Ellis County
+835,Itasca Independent School District,True,True,TX,Hill County
+1744,Itasca School District #10,True,True,IL,DuPage County
+1387,J. Sterling Morton High School District 201,True,True,IL,Cook County
+1999,Jackson County School District,True,True,MS,Jackson County
+778,Jackson Local Schools,True,True,OH,Stark County
+1207,Jacksonville ISD,True,True,TX,Cherokee County
+1241,Jacksonville School District #117,True,True,IL,Morgan County
+1933,Jarrell ISD,True,True,TX,Williamson County
+2063,Jasper ISD,True,True,TX,Jasper County
+2477,Jayton-Girard ISD,True,True,TX,
+982,Jefferson Independent School District,True,True,TX,
+1644,Jenison Public Schools,True,True,MI,Ottawa County
 2328,Jim Hogg County ISD,True,True,,
-1441,Jim Ned Consolidated Independent School District,True,True,,
-1212,Joliet Township High School District 204,True,True,,
-2523,Jonesboro Elementary School District 43,True,True,,
-2825,Joppa - Maple Grove Unit District #38,False,False,,
-3248,Jordan School District,True,True,,
-1773,Jordan School District #717,True,True,,
-759,Joshua Independent School District,True,True,,
-1836,Jourdanton Independent School District,True,True,,
-1500,Juab School District,True,True,,
-1434,Judson ISD,True,True,,
-753,Junction Independent School District,True,True,,
+1441,Jim Ned Consolidated Independent School District,True,True,TX,Taylor County
+1212,Joliet Township High School District 204,True,True,IL,Will County
+2523,Jonesboro Elementary School District 43,True,True,IL,Union County
+2825,Joppa - Maple Grove Unit District #38,False,False,IL,
+3248,Jordan School District,True,True,UT,Salt Lake County
+1773,Jordan School District #717,True,True,MN,
+759,Joshua Independent School District,True,True,TX,Johnson County
+1836,Jourdanton Independent School District,True,True,TX,Atascosa County
+1500,Juab School District,True,True,UT,Juab County
+1434,Judson ISD,True,True,TX,Bexar County
+753,Junction Independent School District,True,True,TX,Kimble County
 3915,Kalamazoo Public Schools,True,True,,
-1619,Kalamazoo RESA,True,True,,
-2092,Kaleva Norman Dickson School District / Bear Lake Schools,True,True,,
-3197,Karnack ISD,True,True,,
-977,Karnes City ISD,True,True,,
-2293,Kaufman Independent School District,True,True,,
-1849,Keene ISD,True,True,,
-1389,Keeneyville School District 20,True,True,,
-2320,Keller Independent School District,True,True,,
-2321,Kelton ISD,True,True,,
-2338,Kemp Independent School District,True,True,,
-2201,Kenedy County-Wide Common School District,True,True,,
-1746,Kenedy ISD-Karnes County,True,True,,
-1676,Kennard ISD,True,True,,
-2219,Kennedale Independent School District,True,True,,
-2131,Kenosha Unified School District,True,True,,
-2589,Kent ISD,True,True,,
-1753,Kentucky State Board of Licensure for Professional Engineers,False,False,,
-1811,Kenyon Wanamingo Schools,True,True,,
-897,Kerens Independent School District,True,True,,
-2213,Kermit ISD,True,True,,
-684,Kerrville Independent School District,True,True,,
-2139,Kewaunee School District,True,True,,
-2806,Kildeer Countryside School District 96,True,True,,
-1011,Kilgore College,False,False,,
-920,Kilgore ISD,True,True,,
-2623,Killdeer Public School,True,True,,
-1051,Killeen Independent School District,True,True,,
-2856,Kindred School District,True,True,,
-2778,King County Library System,False,False,,
+1619,Kalamazoo RESA,True,True,MI,Kalamazoo County
+2092,Kaleva Norman Dickson School District / Bear Lake Schools,True,True,MI,Manistee County
+3197,Karnack ISD,True,True,TX,
+977,Karnes City ISD,True,True,TX,Karnes County
+2293,Kaufman Independent School District,True,True,TX,Kaufman County
+1849,Keene ISD,True,True,TX,
+1389,Keeneyville School District 20,True,True,IL,DuPage County
+2320,Keller Independent School District,True,True,TX,Tarrant County
+2321,Kelton ISD,True,True,TX,
+2338,Kemp Independent School District,True,True,TX,Kaufman County
+2201,Kenedy County-Wide Common School District,True,True,TX,
+1746,Kenedy ISD-Karnes County,True,True,TX,Karnes County
+1676,Kennard ISD,True,True,TX,Houston County
+2219,Kennedale Independent School District,True,True,TX,
+2131,Kenosha Unified School District,True,True,WI,Kenosha County
+2589,Kent ISD,True,True,MI,Kent County
+1753,Kentucky State Board of Licensure for Professional Engineers,False,False,KY,Franklin County
+1811,Kenyon Wanamingo Schools,True,True,MN,Goodhue County
+897,Kerens Independent School District,True,True,TX,
+2213,Kermit ISD,True,True,TX,Winkler County
+684,Kerrville Independent School District,True,True,TX,Kerr County
+2139,Kewaunee School District,True,True,WI,Kewaunee County
+2806,Kildeer Countryside School District 96,True,True,IL,Lake County
+1011,Kilgore College,False,False,TX,Gregg County
+920,Kilgore ISD,True,True,TX,Gregg County
+2623,Killdeer Public School,True,True,ND,Dunn County
+1051,Killeen Independent School District,True,True,TX,Bell County
+2856,Kindred School District,True,True,ND,Cass County
+2778,King County Library System,False,False,WA,King County
 2354,Kingsley Area Schools,True,True,,
-2237,Kingsville ISD,True,True,,
-954,Kirbyville CISD,True,True,,
-3193,Kittson Central School District,True,True,,
-1570,Klamath County School District,True,True,,
-1567,Klamath Falls City Schools,True,True,,
-921,Klein Independent School District,True,True,,
-709,KMS Public School,True,True,,
-3297,Kodiak Island Borough School District,True,True,,
-1230,Komarek School District 94,True,True,,
-1403,Kountze ISD,True,True,,
-717,Krum ISD,True,True,,
-1835,LA FERIA INDEPENDENT SCHOOL DISTRICT,True,True,,
-766,La Grange Independent School District,True,True,,
-3263,La Joya Independent School District,True,True,,
-767,La Porte Independent School District,True,True,,
+2237,Kingsville ISD,True,True,TX,Kleberg County
+954,Kirbyville CISD,True,True,TX,Jasper County
+3193,Kittson Central School District,True,True,MN,
+1570,Klamath County School District,True,True,OR,Klamath County
+1567,Klamath Falls City Schools,True,True,OR,Klamath County
+921,Klein Independent School District,True,True,TX,Harris County
+709,KMS Public School,True,True,MN,Swift County
+3297,Kodiak Island Borough School District,True,True,AK,Kodiak Island Borough
+1230,Komarek School District 94,True,True,IL,Cook County
+1403,Kountze ISD,True,True,TX,Hardin County
+717,Krum ISD,True,True,TX,Denton County
+1835,LA FERIA INDEPENDENT SCHOOL DISTRICT,True,True,TX,Cameron County
+766,La Grange Independent School District,True,True,TX,Fayette County
+3263,La Joya Independent School District,True,True,TX,
+767,La Porte Independent School District,True,True,TX,Harris County
 960,La Pryor ISD,True,True,,
-870,La Vega ISD,True,True,,
-1470,La Vernia ISD,True,True,,
-1962,La Villa ISD,True,True,,
-1983,Lackland ISD,True,True,,
-1838,Lafayette School Corporation,True,True,,
+870,La Vega ISD,True,True,TX,
+1470,La Vernia ISD,True,True,TX,Wilson County
+1962,La Villa ISD,True,True,TX,
+1983,Lackland ISD,True,True,TX,
+1838,Lafayette School Corporation,True,True,IN,Tippecanoe County
 3631,Lago Vista ISD,True,True,,
-1728,LaGrange School District 105,True,True,,
-1520,Laguna Department of Education,False,False,,
-1232,Lake and Peninsula School District,True,True,,
-1265,Lake Bluff School District 65,True,True,,
-1557,Lake County School District 7,True,True,,
-1690,Lake Crystal Wellcome Memorial Schools,True,True,,
-859,Lake Dallas Independent School District,True,True,,
-1518,Lake Orion Community Schools,True,True,,
-2582,Lake Pend Oreille School District #84,True,True,,
-2056,Lake Ridge Schools,True,True,,
-1620,Lake Shore Public Schools,True,True,,
-900,Lake Travis Independent School District,True,True,,
-1255,Lake Villa School District 41,True,True,,
-842,Lake Worth ISD,True,True,,
-2129,Lakeland Joint School District No. 272,True,True,,
-1617,Lakeshore Public Schools,True,True,,
-1070,Lakeview Community Schools,True,True,,
-1089,Lakeview Public Schools,True,True,,
-1167,Lakeview School District,True,True,,
-1160,Lakeville District Schools,True,True,,
-698,Lakeway MUD,False,False,,
-902,Lakewood Public Schools,True,True,,
-2273,Lamar CISD,True,True,,
-782,Lamar County School District,True,True,,
-686,Lamesa ISD,True,True,,
-1901,Lampasas Independent School District,True,True,,
-743,Lancaster ISD,True,True,,
-1565,Lane Education Service District,False,False,,
-1579,Lansing School District,True,True,,
-3262,Lansing School District 158,True,True,,
+1728,LaGrange School District 105,True,True,IL,Cook County
+1520,Laguna Department of Education,False,False,NM,
+1232,Lake and Peninsula School District,True,True,AK,Anchorage Municipality
+1265,Lake Bluff School District 65,True,True,IL,Lake County
+1557,Lake County School District 7,True,True,OR,Lake County
+1690,Lake Crystal Wellcome Memorial Schools,True,True,MN,Blue Earth County
+859,Lake Dallas Independent School District,True,True,TX,
+1518,Lake Orion Community Schools,True,True,MI,Oakland County
+2582,Lake Pend Oreille School District #84,True,True,ID,
+2056,Lake Ridge Schools,True,True,IN,Lake County
+1620,Lake Shore Public Schools,True,True,MI,Macomb County
+900,Lake Travis Independent School District,True,True,TX,
+1255,Lake Villa School District 41,True,True,IL,Lake County
+842,Lake Worth ISD,True,True,TX,Tarrant County
+2129,Lakeland Joint School District No. 272,True,True,ID,
+1617,Lakeshore Public Schools,True,True,MI,Berrien County
+1070,Lakeview Community Schools,True,True,MI,Montcalm County
+1089,Lakeview Public Schools,True,True,MN,Lyon County
+1167,Lakeview School District,True,True,MI,Calhoun County
+1160,Lakeville District Schools,True,True,MN,Dakota County
+698,Lakeway MUD,False,False,TX,
+902,Lakewood Public Schools,True,True,MI,Barry County
+2273,Lamar CISD,True,True,TX,Fort Bend County
+782,Lamar County School District,True,True,MS,Lamar County
+686,Lamesa ISD,True,True,,Dawson County
+1901,Lampasas Independent School District,True,True,TX,Lampasas County
+743,Lancaster ISD,True,True,TX,Dallas County
+1565,Lane Education Service District,False,False,OR,Lane County
+1579,Lansing School District,True,True,MI,Ingham County
+3262,Lansing School District 158,True,True,IL,Cook County
 993,Lapeer Community Schools,True,True,,
-1134,Laporte Public Schools #306,True,True,,
-700,LaPoynor ISD,True,True,,
-2181,Laredo College,False,False,,
-2520,Laredo Independent School District,True,True,,
-2296,Lasara Independent School District,True,True,,
-2196,Latexo Independent School District,True,True,,
-1622,Lawton Community Schools,True,True,,
-1666,Le Sueur-Henderson Public Schools,True,True,,
-706,Leakey ISD,True,True,,
-795,Leander ISD,True,True,,
-747,Lee College,False,False,,
+1134,Laporte Public Schools #306,True,True,MN,Hubbard County
+700,LaPoynor ISD,True,True,TX,Henderson County
+2181,Laredo College,False,False,TX,
+2520,Laredo Independent School District,True,True,TX,Webb County
+2296,Lasara Independent School District,True,True,TX,
+2196,Latexo Independent School District,True,True,TX,
+1622,Lawton Community Schools,True,True,MI,
+1666,Le Sueur-Henderson Public Schools,True,True,MN,Le Sueur County
+706,Leakey ISD,True,True,TX,Real County
+795,Leander ISD,True,True,TX,Williamson County
+747,Lee College,False,False,TX,Harris County
 3903,Lee College Foundation,False,False,,
-985,Lee County Schools,True,True,,
-973,Lefors ISD,True,True,,
-1271,Lemont High School District 210,True,True,,
-1996,Leon ISD,True,True,,
-2562,Lester Prairie Schools,True,True,,
-2283,Levelland ISD,True,True,,
-2780,Lewis County Schools,True,True,,
-2341,Lewiston-Altura Public Schools,True,True,,
-1194,Lewisville Independent School District,True,True,,
-1257,Lexington ISD,True,True,,
+985,Lee County Schools,True,True,MS,Lee County
+973,Lefors ISD,True,True,TX,Gray County
+1271,Lemont High School District 210,True,True,IL,Cook County
+1996,Leon ISD,True,True,TX,Leon County
+2562,Lester Prairie Schools,True,True,MN,McLeod County
+2283,Levelland ISD,True,True,TX,Hockley County
+2780,Lewis County Schools,True,True,WV,Lewis County
+2341,Lewiston-Altura Public Schools,True,True,MN,
+1194,Lewisville Independent School District,True,True,TX,Denton County
+1257,Lexington ISD,True,True,TX,Lee County
 1259,Leyden High School District 212,True,True,,
 929,Liberty Hill ISD,True,True,,
 725,Liberty Independent School District,True,True,,
