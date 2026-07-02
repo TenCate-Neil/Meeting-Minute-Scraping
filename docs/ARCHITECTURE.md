@@ -72,11 +72,18 @@ memory bounded and lets future work cite a specific page number per match.
 A single compiled regex (`TURF_PATTERN` in `scrape_boardbook.py`, mirrored in
 `instructions/analysis_instructions.md`) scans the extracted text
 case-insensitively. Each match records ~400 characters of surrounding
-context. This is intentionally a simple substring/regex search, not an LLM
-call - it is cheap enough to run across thousands of documents and only
-flags candidates; a human (or a follow-up LLM pass per `instructions/
-analysis_instructions.md`) should read the quoted context to judge topic
-type, sentiment, and outcome before drawing conclusions.
+context.
+
+Each match is then run through `classify_match()`, a keyword-based heuristic
+that assigns `topic_type`, `sentiment`, and `outcome` per the categories
+defined in `instructions/analysis_instructions.md`, plus a per-document
+`summary`. This fills out the full output format mechanically, but it is
+still substring matching, not semantic understanding - e.g. sarcasm,
+negation ("no longer a concern"), or a topic keyword appearing outside its
+turf context can misclassify. Treat these fields as a triage aid: fine for
+sorting "which of 1,000 documents deserve a closer look" at scale, not a
+substitute for reading the quoted context yourself before citing a finding
+externally.
 
 ## Why no headless browser is needed
 

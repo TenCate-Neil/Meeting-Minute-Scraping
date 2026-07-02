@@ -52,6 +52,80 @@ TURF_TERMS = [
 ]
 TURF_PATTERN = re.compile("|".join(re.escape(t) for t in TURF_TERMS), re.IGNORECASE)
 
+# Keyword-based heuristic classifier for the fields analysis_instructions.md
+# asks for beyond term matching (topic type / sentiment / outcome). This is
+# a rule-based first pass, not a semantic judgment - low-confidence or
+# ambiguous contexts should still get a human/LLM read of the quoted excerpt
+# before anything is reported externally. See docs/ARCHITECTURE.md.
+TOPIC_KEYWORDS = [
+    ("Procurement / bid / contract award", ("bid", "rfp", "proposal", "contract award", "vendor", "procurement", "purchase order", "awarded to")),
+    ("Budget / capital expenditure", ("budget", "capital", "expenditure", "fund", "cost estimate", "appropriat", "bond")),
+    ("Facility construction or renovation project", ("construct", "renovat", "install", "build", "project", "stadium", "complex")),
+    ("Maintenance / replacement discussion", ("maintenance", "replace", "wear", "lifespan", "end of life", "repair")),
+    ("Policy or safety discussion (e.g., heat, injury, environmental)", ("safety", "injury", "heat", "temperature", "environmental", "health", "hazard", "policy")),
+]
+
+SENTIMENT_KEYWORDS = {
+    "positive": ("support", "durab", "cost saving", "benefit", "praise", "successful", "improve", "favor", "excited", "pleased"),
+    "negative": ("concern", "oppos", "expensive", "costly", "risk", "injury", "hazard", "complaint", "reject", "against", "problem"),
+}
+
+OUTCOME_KEYWORDS = [
+    ("Approved", ("approved", "passed", "carried", "unanimously")),
+    ("Denied", ("denied", "rejected", "failed", "voted down")),
+    ("Tabled", ("tabled", "postponed", "deferred")),
+    ("Motion made (pending/unspecified result)", ("motion to", "motion by", "moved to")),
+]
+
+
+def classify_match(context: str) -> dict:
+    """Heuristic keyword classification of a matched excerpt.
+
+    Returns topic_type / sentiment / outcome per the categories defined in
+    instructions/analysis_instructions.md. This is intentionally simple
+    (substring matching, not NLP) - treat it as a triage aid, not a final
+    verdict; re-read the quoted context yourself for anything reported
+    outside this pipeline.
+    """
+    lower = context.lower()
+
+    topic_type = "General mention / informational only"
+    for label, keywords in TOPIC_KEYWORDS:
+        if any(kw in lower for kw in keywords):
+            topic_type = label
+            break
+
+    has_pos = any(kw in lower for kw in SENTIMENT_KEYWORDS["positive"])
+    has_neg = any(kw in lower for kw in SENTIMENT_KEYWORDS["negative"])
+    if has_pos and has_neg:
+        sentiment = "Mixed"
+    elif has_pos:
+        sentiment = "Positive"
+    elif has_neg:
+        sentiment = "Negative"
+    else:
+        sentiment = "Neutral / factual"
+
+    outcome = "Informational only"
+    for label, keywords in OUTCOME_KEYWORDS:
+        if any(kw in lower for kw in keywords):
+            outcome = label
+            break
+
+    return {"topic_type": topic_type, "sentiment": sentiment, "outcome": outcome}
+
+
+def summarize_document(meeting: "MeetingRef", matches: list) -> str:
+    if not matches:
+        return ""
+    terms = sorted({m["term"] for m in matches})
+    topics = sorted({m["topic_type"] for m in matches})
+    sentiments = sorted({m["sentiment"] for m in matches})
+    return (
+        f"{len(matches)} turf-related mention(s) found ({', '.join(terms)}); "
+        f"topic(s): {', '.join(topics)}; sentiment(s): {', '.join(sentiments)}."
+    )
+
 
 @dataclass
 class MeetingRef:
@@ -65,7 +139,8 @@ class MeetingRef:
 class AnalysisResult:
     meeting: MeetingRef
     turf_mentioned: bool
-    matches: list = field(default_factory=list)  # list of {term, context}
+    matches: list = field(default_factory=list)  # list of {term, context, topic_type, sentiment, outcome}
+    summary: str = ""
     error: Optional[str] = None
     pages: int = 0
     pdf_bytes: int = 0
@@ -151,12 +226,14 @@ def analyze_text(meeting: MeetingRef, text: str, pages: int, pdf_bytes: int) -> 
     for m in TURF_PATTERN.finditer(text):
         start = max(0, m.start() - 200)
         end = min(len(text), m.end() + 200)
-        matches.append({"term": m.group(), "context": text[start:end].strip()})
+        context = text[start:end].strip()
+        matches.append({"term": m.group(), "context": context, **classify_match(context)})
 
     return AnalysisResult(
         meeting=meeting,
         turf_mentioned=len(matches) > 0,
         matches=matches,
+        summary=summarize_document(meeting, matches),
         pages=pages,
         pdf_bytes=pdf_bytes,
     )
@@ -210,8 +287,12 @@ def format_report(results: list) -> str:
         lines.append(f"Turf mentioned: {'Yes' if r.turf_mentioned else 'No'}")
         if r.turf_mentioned:
             for i, match in enumerate(r.matches, 1):
-                lines.append(f"  [{i}] Term: '{match['term']}'")
-                lines.append(f"      Context: ...{match['context']}...")
+                lines.append(f"  - Item {i}: Term '{match['term']}'")
+                lines.append(f"    Context: \"...{match['context']}...\"")
+                lines.append(f"    Topic type: {match['topic_type']}")
+                lines.append(f"    Sentiment: {match['sentiment']}")
+                lines.append(f"    Outcome: {match['outcome']}")
+            lines.append(f"Summary: {r.summary}")
         lines.append("")
 
     return "\n".join(lines)
@@ -220,7 +301,9 @@ def format_report(results: list) -> str:
 def write_csv(results: list, path: Path):
     with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["meeting_id", "date", "title", "turf_mentioned", "num_matches", "pages", "error"])
+        writer.writerow(
+            ["meeting_id", "date", "title", "turf_mentioned", "num_matches", "topic_types", "sentiments", "outcomes", "summary", "pages", "error"]
+        )
         for r in results:
             writer.writerow(
                 [
@@ -229,6 +312,10 @@ def write_csv(results: list, path: Path):
                     r.meeting.title,
                     r.turf_mentioned,
                     len(r.matches),
+                    "; ".join(sorted({m["topic_type"] for m in r.matches})),
+                    "; ".join(sorted({m["sentiment"] for m in r.matches})),
+                    "; ".join(sorted({m["outcome"] for m in r.matches})),
+                    r.summary,
                     r.pages,
                     r.error or "",
                 ]
@@ -289,6 +376,7 @@ def main():
                     "title": r.meeting.title,
                     "turf_mentioned": r.turf_mentioned,
                     "matches": r.matches,
+                    "summary": r.summary,
                     "error": r.error,
                     "pages": r.pages,
                 }

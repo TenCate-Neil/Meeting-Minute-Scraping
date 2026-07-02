@@ -103,10 +103,12 @@ for d in sorted(hits, key=lambda x: -x['turf_hits']):
 "
 ```
 
-For each district with hits, open `output/districts/org_{id}.json` to read
-the quoted context per match, then apply
-`instructions/analysis_instructions.md` (topic type, sentiment, outcome) -
-either manually or by feeding the quoted context to an LLM per document.
+For each district with hits, open `output/districts/org_{id}.json`. Each
+match already carries a heuristic `topic_type`, `sentiment`, and `outcome`
+(and each document a `summary`) per `instructions/analysis_instructions.md`,
+computed by keyword matching - fine for a first sort, but re-read the quoted
+`context` yourself (or route it to an LLM) before treating the label as
+final, especially for anything you'd cite externally.
 
 ## Handling failures and gaps
 
