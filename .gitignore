@@ -1,3 +1,7 @@
 output/
 __pycache__/
 *.pyc
+
+# Per-run lead export snapshots are reproducible from leads/ledger.json;
+# the ledger itself IS tracked. (At scale, the ledger will move out of git.)
+exports/
