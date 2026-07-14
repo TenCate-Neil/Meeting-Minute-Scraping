@@ -1,0 +1,20 @@
+[
+  {
+    "meeting_id": "111222",
+    "date": "March 3, 2026 at 7:00 PM",
+    "title": "Regular Meeting",
+    "turf_mentioned": true,
+    "matches": [
+      {
+        "term": "synthetic turf",
+        "context": "discussion of a synthetic turf field replacement at the high school stadium",
+        "topic_type": "Maintenance / replacement discussion",
+        "sentiment": "Neutral / factual",
+        "outcome": "Informational only"
+      }
+    ],
+    "summary": "1 turf-related mention(s) found (synthetic turf); topic(s): Maintenance / replacement discussion; sentiment(s): Neutral / factual.",
+    "error": null,
+    "pages": 40
+  }
+]
