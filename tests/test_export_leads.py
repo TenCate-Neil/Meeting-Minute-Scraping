@@ -37,7 +37,7 @@ class ExportLeadsTest(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
-    def _run(self, input_file, run_timestamp="2026-07-14T09:12:00Z"):
+    def _run(self, input_file, run_timestamp="2026-07-14T09:12:00Z", registry=None):
         return export_leads.run_export(
             input_path=FIXTURES / input_file,
             districts_csv=DISTRICTS_CSV,
@@ -45,7 +45,12 @@ class ExportLeadsTest(unittest.TestCase):
             exports_dir=self.exports,
             schema_path=SCHEMA_PATH,
             run_timestamp=run_timestamp,
+            org_registry_path=(FIXTURES / registry) if registry else None,
         )
+
+    def _lead(self, ext_id=EXPECTED_ID_795_725242):
+        by_id = {l["external_id"]: l for l in json.loads(self.ledger.read_text())["leads"]}
+        return by_id[ext_id]
 
     def test_mapped_lead_validates_against_schema(self):
         # Fixture has 2 records but only 1 turf hit -> the filter drops the other.
@@ -112,12 +117,36 @@ class ExportLeadsTest(unittest.TestCase):
 
     def test_evidence_quote_joins_match_contexts(self):
         self._run("org_795.json")
-        by_id = {l["external_id"]: l for l in json.loads(self.ledger.read_text())["leads"]}
-        lead = by_id[EXPECTED_ID_795_725242]
+        lead = self._lead()
         # Two matches in the fixture -> both contexts present, joined by "; ".
         self.assertIn("; ", lead["evidence_quote"])
         self.assertEqual(lead["evidence"]["matched_terms"], ["artificial turf"])
         self.assertFalse(lead["evidence"]["needs_review"])
+
+    def test_county_suffix_stripped_to_match_web_search_repo(self):
+        # org_directory has "Williamson County"; the shared convention is "Williamson".
+        self._run("org_795.json")
+        self.assertEqual(self._lead()["county"], "Williamson")
+
+    def test_registry_supplies_id_and_county_when_org_matches(self):
+        # With the shared registry, id + county come from it and agree with web-search.
+        counts = self._run("org_795.json", registry="registry.json")
+        self.assertEqual(counts["unreconciled"], 0)
+        lead = self._lead()
+        self.assertEqual(lead["organization_id"], "leander-isd-tx")
+        self.assertEqual(lead["county"], "Williamson")
+        self.assertFalse(lead["evidence"]["needs_review"])
+
+    def test_org_absent_from_registry_is_flagged_for_reconciliation(self):
+        # A registry that does NOT list Leander -> lead still exports, but is
+        # flagged needs_review so it gets reconciled (not silently divergent).
+        counts = self._run("org_795.json", registry="registry_without_leander.json")
+        self.assertEqual(counts["new"], 1)
+        self.assertEqual(counts["unreconciled"], 1)
+        lead = self._lead()
+        self.assertEqual(lead["organization_id"], "leander-isd-tx")  # locally generated
+        self.assertTrue(lead["evidence"]["needs_review"])
+        self.assertIn("registry", lead["evidence"]["details"].lower())
 
 
 if __name__ == "__main__":

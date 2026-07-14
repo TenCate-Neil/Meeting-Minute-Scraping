@@ -98,6 +98,10 @@ python3 scripts/export_leads.py --input output/districts
 
 # A single results file whose name does not encode the org id:
 python3 scripts/export_leads.py --input output/leander_2026.json --org 795
+
+# Align organization_id with the shared registry (recommended before merging):
+python3 scripts/export_leads.py --input output/districts \
+  --org-registry ../Lead-Scrapper-Webpage/organizations/registry.json
 ```
 
 How it behaves:
@@ -117,6 +121,30 @@ How it behaves:
 `leads/ledger.json` is committed; the per-run `exports/` snapshots are
 gitignored (reproducible from the ledger). Both `source` values are fixed:
 every lead from this repo is `source: "meeting-minutes"`.
+
+### Staying compatible with the web-search pipeline
+
+Both pipelines feed one platform (Supabase, surfaced in Retool), so leads must
+line up. This repo was checked against the web-search repo's live contract:
+
+- **Schema** — `contracts/lead.schema.json` is structurally identical to that
+  repo's copy, so a lead validated here is valid there.
+- **`external_id`** — the two recipes differ by construction (this repo hashes
+  `org_id|meeting_id|mm-turf`), so leads from the two pipelines never collide
+  on the upsert key.
+- **`county`** — stored without the `" County"` suffix (e.g. `Williamson`) to
+  match the web-search registry's convention.
+- **`organization_id`** — the shared join key. Pass `--org-registry` pointing
+  at the web-search repo's `organizations/registry.json` (or, later, a Supabase
+  export of it) and `organization_id`/`county` are taken from the registry so
+  both pipelines emit the same values for the same org. Orgs not yet in the
+  registry keep a locally-generated slug and are flagged `needs_review` so they
+  are reconciled rather than silently duplicated. Without the flag, slugs are
+  generated with the same rule the registry uses (`name` + lowercase state,
+  e.g. `leander-isd-tx`).
+
+Writing leads into Supabase itself is out of scope for this repo; it produces
+schema-valid lead files and the ledger that a loader (or the platform) upserts.
 
 ## Known limitations
 

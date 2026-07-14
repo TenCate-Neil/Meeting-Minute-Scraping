@@ -98,6 +98,9 @@ def main():
                         help="Ledger path for --export-leads")
     parser.add_argument("--exports-dir", default=str(export_leads.DEFAULT_EXPORTS),
                         help="Per-run export directory for --export-leads")
+    parser.add_argument("--org-registry",
+                        help="Optional shared organization registry for --export-leads "
+                             "(see scripts/export_leads.py --org-registry)")
     args = parser.parse_args()
 
     districts = load_districts(Path(args.districts_csv))
@@ -131,6 +134,7 @@ def main():
             districts_csv=Path(args.districts_csv),
             ledger_path=Path(args.ledger),
             exports_dir=Path(args.exports_dir),
+            org_registry_path=Path(args.org_registry) if args.org_registry else None,
         )
         export_leads._print_summary(counts)
 

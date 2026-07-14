@@ -102,6 +102,17 @@ def compute_external_id(org_id: str, meeting_id: str) -> str:
     return hashlib.sha1(basis.encode("utf-8")).hexdigest()
 
 
+def normalize_county(county: str) -> str:
+    """Match the web-search repo's county convention: bare county name, no
+    ' County' suffix (their registry stores 'Williamson', not 'Williamson
+    County'). Keeps the two pipelines' county values consistent in Supabase.
+    """
+    c = (county or "").strip()
+    if c.endswith(" County"):
+        c = c[: -len(" County")].strip()
+    return c
+
+
 def clean_meeting_date(date_str: str) -> str:
     """Turn a BoardBook display date into a plain human date label.
 
@@ -155,6 +166,34 @@ def load_org_directory(csv_path: Path) -> dict:
     return directory
 
 
+def load_org_registry(path: Optional[Path]) -> Optional[dict]:
+    """Load the shared organization registry (the web-search repo's
+    organizations/registry.json, or a Supabase export in the same shape) into
+    an index keyed by (name-slug, state) -> {'organization_id', 'county'}.
+
+    Returns None if no path is given, which switches the export to
+    standalone slug generation. When present, it is the source of truth for
+    organization_id so both pipelines emit the same key for the same org.
+    """
+    if path is None:
+        return None
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    orgs = data.get("organizations", data) if isinstance(data, dict) else data
+    index = {}
+    for entry in orgs:
+        name = (entry.get("name") or "").strip()
+        state = (entry.get("state") or "").strip().upper()
+        org_id = (entry.get("organization_id") or "").strip()
+        if not (name and org_id):
+            continue
+        county = entry.get("primary_county") or entry.get("county") or ""
+        index[(slugify(name), state)] = {
+            "organization_id": org_id,
+            "county": normalize_county(county),
+        }
+    return index
+
+
 def discover_input_files(input_path: Path) -> list:
     """Return the list of per-document JSON files to process."""
     if input_path.is_dir():
@@ -177,18 +216,33 @@ def org_id_for_file(path: Path, override: Optional[str]) -> Optional[str]:
 # --- mapping ---------------------------------------------------------------
 
 def build_lead(record: dict, org_id: str, org_meta: dict, discovered_at: str,
-               run_stamp: str) -> dict:
+               run_stamp: str, registry_index: Optional[dict] = None) -> dict:
     """Map one per-document analysis record + org metadata to a core lead.
 
     Assumes record["turf_mentioned"] is true and record["matches"] is non-empty
     (the caller filters). One lead per document.
+
+    If registry_index is provided (the shared org registry), organization_id
+    and county are taken from it for matched orgs so both pipelines agree; orgs
+    not in the registry keep a locally-generated slug and are flagged
+    needs_review for reconciliation.
     """
     meeting_id = str(record.get("meeting_id", "")).strip()
     matches = record.get("matches") or []
 
     org_name = org_meta.get("org_name", "")
     state = org_meta.get("state", "")
-    county = org_meta.get("county", "")
+    county = normalize_county(org_meta.get("county", ""))
+
+    # organization_id: prefer the shared registry's key for this org (so both
+    # pipelines emit the same id); otherwise derive it deterministically.
+    organization_id = slugify(org_name, state)
+    registry_entry = registry_index.get((slugify(org_name), state)) if registry_index else None
+    if registry_entry:
+        organization_id = registry_entry.get("organization_id") or organization_id
+        if registry_entry.get("county"):
+            county = registry_entry["county"]
+    unreconciled = registry_index is not None and registry_entry is None
 
     # Aggregations over the document's matches.
     terms = sorted({(m.get("term") or "").strip().lower() for m in matches if m.get("term")})
@@ -219,7 +273,7 @@ def build_lead(record: dict, org_id: str, org_meta: dict, discovered_at: str,
     # Deep link a BDM can open to see the mention (human-facing agenda page).
     source_url = f"{BOARDBOOK_BASE}/Public/Agenda/{org_id}?meeting={meeting_id}"
 
-    needs_review = (state == "") or (county == "")
+    needs_review = (state == "") or (county == "") or unreconciled
 
     # evidence.details: fuller context, demoted from the core.
     detail_bits = []
@@ -239,6 +293,11 @@ def build_lead(record: dict, org_id: str, org_meta: dict, discovered_at: str,
     # Keep the full summary here only if the core one was trimmed.
     if raw_summary and raw_summary != summary:
         detail_bits.append(f"Full summary: {raw_summary}")
+    if unreconciled:
+        detail_bits.append(
+            "Org not found in shared registry; organization_id generated "
+            "locally - reconcile before merge"
+        )
     details = ". ".join(detail_bits) + "."
 
     project_name = trim_one_line(
@@ -271,9 +330,8 @@ def build_lead(record: dict, org_id: str, org_meta: dict, discovered_at: str,
         "evidence": evidence,
     }
 
-    org_slug = slugify(org_name, state)
-    if org_slug:
-        lead["organization_id"] = org_slug
+    if organization_id:
+        lead["organization_id"] = organization_id
 
     return lead
 
@@ -308,6 +366,7 @@ def run_export(
     schema_path: Path = DEFAULT_SCHEMA,
     org_override: Optional[str] = None,
     run_timestamp: Optional[str] = None,
+    org_registry_path: Optional[Path] = None,
 ) -> dict:
     """Run the export. Returns a counts dict; raises nothing for bad records
     (they are refused and reported). Writes the ledger and a run file.
@@ -321,12 +380,13 @@ def run_export(
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema, format_checker=Draft202012Validator.FORMAT_CHECKER)
     directory = load_org_directory(districts_csv)
+    registry_index = load_org_registry(org_registry_path)
     ledger = load_ledger(ledger_path)
     known_ids = {lead["external_id"] for lead in ledger["leads"]}
 
     counts = {
         "candidates": 0, "new": 0, "already_known": 0,
-        "invalid": 0, "skipped_no_org": 0,
+        "invalid": 0, "skipped_no_org": 0, "unreconciled": 0,
     }
     warnings = []
     new_leads = []
@@ -354,8 +414,12 @@ def run_export(
                 continue
             counts["candidates"] += 1
 
-            lead = build_lead(record, org_id, org_meta, discovered_at, run_stamp)
+            lead = build_lead(record, org_id, org_meta, discovered_at, run_stamp, registry_index)
             ext_id = lead["external_id"]
+            if registry_index is not None:
+                reg_key = (slugify(org_meta.get("org_name", "")), org_meta.get("state", ""))
+                if reg_key not in registry_index:
+                    counts["unreconciled"] += 1
 
             errors = sorted(validator.iter_errors(lead), key=lambda e: e.path)
             if errors:
@@ -392,7 +456,8 @@ def _print_summary(counts: dict) -> None:
         f"new: {counts['new']} | "
         f"already-known: {counts['already_known']} | "
         f"invalid(refused): {counts['invalid']} | "
-        f"skipped(no org): {counts['skipped_no_org']}",
+        f"skipped(no org): {counts['skipped_no_org']} | "
+        f"unreconciled(not in registry): {counts.get('unreconciled', 0)}",
         file=sys.stderr,
     )
     print(f"Ledger now holds {counts['ledger_total']} lead(s).", file=sys.stderr)
@@ -418,6 +483,11 @@ def main() -> int:
                         help="Directory for per-run export files")
     parser.add_argument("--schema", default=str(DEFAULT_SCHEMA),
                         help="Path to contracts/lead.schema.json")
+    parser.add_argument("--org-registry",
+                        help="Optional shared organization registry (the web-search "
+                             "repo's organizations/registry.json, or a Supabase export). "
+                             "When given, organization_id/county come from it so both "
+                             "pipelines agree; orgs absent from it are flagged needs_review.")
     parser.add_argument("--run-timestamp",
                         help="Override run time as UTC ISO (YYYY-MM-DDTHH:MM:SSZ); "
                              "mainly for deterministic tests")
@@ -431,6 +501,7 @@ def main() -> int:
         schema_path=Path(args.schema),
         org_override=args.org,
         run_timestamp=args.run_timestamp,
+        org_registry_path=Path(args.org_registry) if args.org_registry else None,
     )
     _print_summary(counts)
     # Non-zero exit if any record was refused, so a timer/operator notices.
