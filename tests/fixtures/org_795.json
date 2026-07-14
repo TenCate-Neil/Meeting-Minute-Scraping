@@ -1,0 +1,37 @@
+[
+  {
+    "meeting_id": "744782",
+    "date": "June 18, 2026 at 6:15 PM",
+    "title": "Regular Meeting with Public Hearing",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 142
+  },
+  {
+    "meeting_id": "725242",
+    "date": "February 5, 2026 at 6:15 PM",
+    "title": "Regular Meeting with Public Hearing",
+    "turf_mentioned": true,
+    "matches": [
+      {
+        "term": "Artificial Turf",
+        "context": "C. OPERATIONS  \n1. Consider Approval of Bond Oversight Committee Recommendation to Reallocate Bond Funds for the Replacement of Artificial Turf at AC Bible and Monroe Regional Stadiums",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Positive",
+        "outcome": "Informational only"
+      },
+      {
+        "term": "Artificial Turf",
+        "context": "reallocate up to $1,600,000 from 2023 Bond Project Line Item: Baseball & Softball Turf to new bond project line items for Artificial Turf at AC Bible and Monroe Regional Stadiums. This motion passed six in favor and one opposed.",
+        "topic_type": "Budget / capital expenditure",
+        "sentiment": "Mixed",
+        "outcome": "Approved"
+      }
+    ],
+    "summary": "2 turf-related mention(s) found (Artificial Turf); topic(s): Budget / capital expenditure; sentiment(s): Mixed, Positive.",
+    "error": null,
+    "pages": 270
+  }
+]
