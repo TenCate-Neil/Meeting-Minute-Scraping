@@ -19,6 +19,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+# export_leads lives alongside this script; import it for the optional final
+# export step (--export-leads). Kept as a plain import, no agents involved.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import export_leads  # noqa: E402
+
 
 def load_districts(csv_path: Path) -> list:
     districts = []
@@ -86,6 +91,13 @@ def main():
     parser.add_argument("--keep-pdfs", action="store_true", help="Persist PDFs for districts with turf hits")
     parser.add_argument("--sleep", type=float, default=0.5, help="Politeness delay between requests, per district run")
     parser.add_argument("--district-limit", type=int, help="Only process the first N districts from the CSV (smoke testing)")
+    parser.add_argument("--export-leads", action="store_true",
+                        help="After the rollout, export turf-hit documents to the shared "
+                             "core-lead shape (see scripts/export_leads.py). Off by default.")
+    parser.add_argument("--ledger", default=str(export_leads.DEFAULT_LEDGER),
+                        help="Ledger path for --export-leads")
+    parser.add_argument("--exports-dir", default=str(export_leads.DEFAULT_EXPORTS),
+                        help="Per-run export directory for --export-leads")
     args = parser.parse_args()
 
     districts = load_districts(Path(args.districts_csv))
@@ -111,6 +123,16 @@ def main():
     failed = [s for s in summary if s["status"] == "failed"]
     print(f"\nDone. {len(districts)} districts processed, {total_hits} turf-hit document(s) total, {len(failed)} failed.", file=sys.stderr)
     print(f"Summary written to {summary_path}", file=sys.stderr)
+
+    if args.export_leads:
+        print("\n--- Exporting leads to the shared core-lead shape ---", file=sys.stderr)
+        counts = export_leads.run_export(
+            input_path=out_dir,
+            districts_csv=Path(args.districts_csv),
+            ledger_path=Path(args.ledger),
+            exports_dir=Path(args.exports_dir),
+        )
+        export_leads._print_summary(counts)
 
 
 if __name__ == "__main__":

@@ -24,21 +24,27 @@ scripts/
   fetch_org_directory.py   Scrape the BoardBook org directory into a CSV you curate
   scrape_boardbook.py      Scrape + analyze one district (one BoardBook org ID)
   run_all_districts.py     Orchestrate scrape_boardbook.py across a curated district list
+  export_leads.py          Convert turf-hit documents into the shared core-lead shape
 instructions/
   analysis_instructions.md What to search for, what to extract, and the output format
+contracts/
+  lead.schema.json         Shared lead contract (v2.0), copied from the web-search repo
 docs/
   ARCHITECTURE.md          How the BoardBook site works and how the scraper talks to it
   ROLLOUT.md               Step-by-step guide to running this across many districts
   DATA_STORAGE.md          What gets kept, what gets discarded, and why
 districts/
   org_directory.csv        Master list of BoardBook orgs (generated, then human-curated)
+leads/
+  ledger.json              Every lead ever exported, keyed by external_id (tracked)
+exports/                   Per-run export snapshots (generated) - gitignored
 output/                    Script output (JSON/CSV results, optionally PDFs) - gitignored
 ```
 
 ## Quickstart
 
 ```bash
-pip install requests beautifulsoup4 lxml PyPDF2
+pip install requests beautifulsoup4 lxml PyPDF2 jsonschema
 
 # 1. One district, quick test (uses a known BoardBook org ID)
 python3 scripts/scrape_boardbook.py --org 795 --limit 5
@@ -49,6 +55,9 @@ python3 scripts/fetch_org_directory.py --out districts/org_directory.csv
 
 # 3. Roll out across every included district
 python3 scripts/run_all_districts.py --districts-csv districts/org_directory.csv
+
+# 4. (Optional) also export turf hits to the shared lead shape in one go
+python3 scripts/run_all_districts.py --districts-csv districts/org_directory.csv --export-leads
 ```
 
 See [docs/ROLLOUT.md](docs/ROLLOUT.md) for the full rollout procedure,
@@ -74,6 +83,40 @@ Every run produces:
 `run_all_districts.py` additionally writes an aggregated
 `output/rollout_summary.json` with a per-district hit count, so you can
 triage which districts need a closer look without opening every file.
+
+## Exporting leads (shared platform shape)
+
+The scrape/analysis output above is per-document and repo-specific. A separate
+final step converts turf-hit documents into the **shared core-lead shape**
+(`contracts/lead.schema.json`, contract v2.0) that both this pipeline and the
+web-search agent pipeline feed into the same Supabase/Retool platform. This
+step never changes the scraping/analysis logic or its output files.
+
+```bash
+# A directory of org_<id>.json files (what run_all_districts.py writes):
+python3 scripts/export_leads.py --input output/districts
+
+# A single results file whose name does not encode the org id:
+python3 scripts/export_leads.py --input output/leander_2026.json --org 795
+```
+
+How it behaves:
+
+- Keeps only documents with `turf_mentioned: true`; one lead per document.
+- Joins `org_name` / `state` / `county` from `districts/org_directory.csv` on
+  the BoardBook `org_id` (the per-document JSON does not carry these itself).
+- Computes a deterministic `external_id` so the same document re-analyzed later
+  produces the same id — Supabase upserts stay idempotent.
+- **Ledger-first:** `leads/ledger.json` holds every lead ever exported. Each
+  run appends only new ids and writes just the new leads to
+  `exports/<UTC timestamp>/leads.json`. Re-running adds nothing new.
+- Validates every record against the schema and refuses to write invalid ones
+  (a document whose org has no enriched `state`, for example, cannot form a
+  valid lead and is reported rather than written).
+
+`leads/ledger.json` is committed; the per-run `exports/` snapshots are
+gitignored (reproducible from the ledger). Both `source` values are fixed:
+every lead from this repo is `source: "meeting-minutes"`.
 
 ## Known limitations
 
