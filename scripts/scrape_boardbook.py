@@ -77,6 +77,29 @@ OUTCOME_KEYWORDS = [
     ("Motion made (pending/unspecified result)", ("motion to", "motion by", "moved to")),
 ]
 
+# Decisiveness order, most decisive first. Used to pick a single confirmed
+# outcome from the minutes when a turf item was discussed (see the hybrid
+# minutes pass in process_meeting).
+OUTCOME_PRIORITY = [
+    "Approved",
+    "Denied",
+    "Tabled",
+    "Motion made (pending/unspecified result)",
+    "Informational only",
+]
+
+
+def pick_confirmed_outcome(outcomes: list) -> Optional[str]:
+    """Given the outcomes classified from turf mentions in the minutes, return
+    the single most decisive one (Approved > Denied > Tabled > Motion > Info),
+    or None if there were no turf mentions to classify in the minutes.
+    """
+    present = set(outcomes)
+    for label in OUTCOME_PRIORITY:
+        if label in present:
+            return label
+    return None
+
 
 def classify_match(context: str) -> dict:
     """Heuristic keyword classification of a matched excerpt.
@@ -144,6 +167,12 @@ class AnalysisResult:
     error: Optional[str] = None
     pages: int = 0
     pdf_bytes: int = 0
+    # Hybrid minutes pass: only populated for turf hits (see process_meeting).
+    # The agenda says what was proposed; the minutes say what was decided.
+    minutes_available: bool = False          # a Minutes PDF was posted and fetched
+    minutes_outcome: Optional[str] = None    # confirmed decision from the minutes
+    minutes_context: str = ""                # quoted turf context from the minutes
+    minutes_pages: int = 0
 
 
 def get_session() -> requests.Session:
@@ -200,7 +229,7 @@ def fetch_meeting_list(session: requests.Session, org_id: str) -> list:
 
 
 def download_agenda_pdf(session: requests.Session, org_id: str, meeting_id: str) -> Optional[bytes]:
-    """Download the agenda/minutes PDF for a given meeting. Returns raw PDF bytes or None."""
+    """Download the agenda PDF for a given meeting. Returns raw PDF bytes or None."""
     url = f"{BASE_URL}/Public/DownloadAgenda/{org_id}?meeting={meeting_id}"
     resp = session.get(url, timeout=60)
     if resp.status_code != 200:
@@ -208,6 +237,57 @@ def download_agenda_pdf(session: requests.Session, org_id: str, meeting_id: str)
     if "application/pdf" not in resp.headers.get("Content-Type", ""):
         return None
     return resp.content
+
+
+def download_minutes_pdf(session: requests.Session, org_id: str, meeting_id: str) -> Optional[bytes]:
+    """Download the *minutes* PDF for a given meeting, if one was posted.
+
+    Mirrors download_agenda_pdf but hits /Public/DownloadMinutes/. Only ~54% of
+    meetings have minutes; for the rest this returns None (non-PDF / redirect),
+    exactly like a meeting with no posted agenda.
+    """
+    url = f"{BASE_URL}/Public/DownloadMinutes/{org_id}?meeting={meeting_id}"
+    resp = session.get(url, timeout=60)
+    if resp.status_code != 200:
+        return None
+    if "application/pdf" not in resp.headers.get("Content-Type", ""):
+        return None
+    return resp.content
+
+
+# Minutes use a WIDER context window than the agenda's ~200 chars. In minutes
+# the recorded vote ("...motion carried, six in favor and one opposed") sits
+# further from the turf term than in an agenda: minutes typically open with a
+# table-of-contents block (item titles, no outcomes) and record the actual
+# motions later, so a tight window lands in the TOC and misses the decision.
+# Empirically, +-200 mislabels the Leander turf vote as "Informational only"
+# while +-400 and up correctly recover "Approved"; 500 is a stable midpoint.
+MINUTES_CONTEXT_WINDOW = 500
+
+
+def confirm_outcome_from_minutes(text: str) -> tuple:
+    """Locate turf mentions in the minutes text and return the confirmed
+    decision. Returns (outcome, context): outcome is the most decisive label
+    per pick_confirmed_outcome (or None if turf isn't mentioned in the
+    minutes), and context is the excerpt that produced that outcome, so the
+    quote actually shows the decision rather than a table-of-contents line.
+
+    Still a keyword heuristic, not semantic understanding: it can key on
+    background/recommendation language near the turf term (e.g. "the committee
+    unanimously approved...") rather than the board's actual vote. Treat
+    minutes_outcome as a hint and read minutes_context before citing it.
+    """
+    hits = []  # (outcome, context) per turf mention in the minutes
+    for m in TURF_PATTERN.finditer(text):
+        start = max(0, m.start() - MINUTES_CONTEXT_WINDOW)
+        end = min(len(text), m.end() + MINUTES_CONTEXT_WINDOW)
+        context = text[start:end].strip()
+        hits.append((classify_match(context)["outcome"], context))
+    if not hits:
+        return None, ""
+    confirmed = pick_confirmed_outcome([outcome for outcome, _ in hits])
+    context = next((c for outcome, c in hits if outcome == confirmed), hits[0][1])
+    return confirmed, context
 
 
 def extract_text(pdf_bytes: bytes) -> tuple:
@@ -245,6 +325,7 @@ def process_meeting(
     meeting: MeetingRef,
     keep_pdfs: bool,
     pdf_dir: Path,
+    skip_minutes: bool = False,
 ) -> AnalysisResult:
     pdf_bytes = download_agenda_pdf(session, org_id, meeting.meeting_id)
     if pdf_bytes is None:
@@ -264,6 +345,28 @@ def process_meeting(
         out_path.write_bytes(pdf_bytes)
     # else: pdf_bytes goes out of scope here and is garbage-collected;
     # nothing touches disk. See STORAGE NOTE below.
+
+    # Hybrid minutes pass: only for turf hits, and only when minutes exist.
+    # The agenda is scraped for every meeting (discovery); the minutes are
+    # fetched just for the handful of hits to confirm what was decided.
+    if result.turf_mentioned and not skip_minutes:
+        minutes_bytes = download_minutes_pdf(session, org_id, meeting.meeting_id)
+        if minutes_bytes is not None:
+            result.minutes_available = True
+            try:
+                minutes_text, minutes_pages = extract_text(minutes_bytes)
+                outcome, context = confirm_outcome_from_minutes(minutes_text)
+                result.minutes_outcome = outcome
+                result.minutes_context = context
+                result.minutes_pages = minutes_pages
+            except Exception:
+                # Minutes existed but couldn't be parsed; leave outcome unset.
+                # minutes_available stays True so this is distinguishable from
+                # "no minutes posted".
+                pass
+            if keep_pdfs:
+                safe_title = re.sub(r"[^A-Za-z0-9_\-]+", "_", meeting.date_str)[:60]
+                (pdf_dir / f"{meeting.meeting_id}_{safe_title}_minutes.pdf").write_bytes(minutes_bytes)
 
     return result
 
@@ -293,6 +396,9 @@ def format_report(results: list) -> str:
                 lines.append(f"    Sentiment: {match['sentiment']}")
                 lines.append(f"    Outcome: {match['outcome']}")
             lines.append(f"Summary: {r.summary}")
+            if r.minutes_available:
+                confirmed = r.minutes_outcome or "turf item not located in minutes"
+                lines.append(f"Outcome per minutes (heuristic): {confirmed}")
         lines.append("")
 
     return "\n".join(lines)
@@ -302,7 +408,7 @@ def write_csv(results: list, path: Path):
     with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(
-            ["meeting_id", "date", "title", "turf_mentioned", "num_matches", "topic_types", "sentiments", "outcomes", "summary", "pages", "error"]
+            ["meeting_id", "date", "title", "turf_mentioned", "num_matches", "topic_types", "sentiments", "outcomes", "minutes_outcome", "summary", "pages", "error"]
         )
         for r in results:
             writer.writerow(
@@ -315,6 +421,7 @@ def write_csv(results: list, path: Path):
                     "; ".join(sorted({m["topic_type"] for m in r.matches})),
                     "; ".join(sorted({m["sentiment"] for m in r.matches})),
                     "; ".join(sorted({m["outcome"] for m in r.matches})),
+                    r.minutes_outcome or "",
                     r.summary,
                     r.pages,
                     r.error or "",
@@ -334,6 +441,10 @@ def main():
     parser.add_argument("--out-json", default="output/results.json", help="Path to write JSON results")
     parser.add_argument("--out-csv", default="output/results.csv", help="Path to write CSV summary")
     parser.add_argument("--sleep", type=float, default=0.5, help="Seconds to sleep between requests (politeness delay)")
+    parser.add_argument("--skip-minutes", action="store_true",
+                        help="Do not fetch the minutes to confirm outcomes for turf hits "
+                             "(by default, meetings with a turf mention also pull the "
+                             "minutes PDF, when one exists, to record the decision)")
     args = parser.parse_args()
 
     session = get_session()
@@ -358,10 +469,13 @@ def main():
     results = []
     for i, meeting in enumerate(meetings, 1):
         print(f"[{i}/{len(meetings)}] {meeting.date_str} - {meeting.title} (id={meeting.meeting_id})", file=sys.stderr)
-        result = process_meeting(session, args.org, meeting, args.keep_pdfs, pdf_dir)
+        result = process_meeting(session, args.org, meeting, args.keep_pdfs, pdf_dir, args.skip_minutes)
         results.append(result)
         if result.turf_mentioned:
-            print(f"  -> TURF MENTIONED ({len(result.matches)} match(es))", file=sys.stderr)
+            confirmed = ""
+            if result.minutes_available:
+                confirmed = f", minutes outcome: {result.minutes_outcome or 'not found'}"
+            print(f"  -> TURF MENTIONED ({len(result.matches)} match(es){confirmed})", file=sys.stderr)
         if i < len(meetings):
             time.sleep(args.sleep)
 
@@ -379,6 +493,10 @@ def main():
                     "summary": r.summary,
                     "error": r.error,
                     "pages": r.pages,
+                    "minutes_available": r.minutes_available,
+                    "minutes_outcome": r.minutes_outcome,
+                    "minutes_context": r.minutes_context,
+                    "minutes_pages": r.minutes_pages,
                 }
                 for r in results
             ],

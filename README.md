@@ -84,6 +84,17 @@ Every run produces:
 `output/rollout_summary.json` with a per-district hit count, so you can
 triage which districts need a closer look without opening every file.
 
+### Confirming outcomes from the minutes
+
+The agenda shows what was *proposed*; the minutes show what was *decided*. For
+every meeting that is a turf hit (and only those), the scraper also fetches the
+meeting's minutes PDF, when one exists, and records the confirmed decision as
+`minutes_outcome` (plus `minutes_available` / `minutes_context`). This adds
+only a handful of downloads per rollout since turf hits are rare. Pass
+`--skip-minutes` to turn it off. See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ("Confirming outcomes from the
+minutes") for the rationale and the agenda-vs-minutes trade-off.
+
 ## Exporting leads (shared platform shape)
 
 The scrape/analysis output above is per-document and repo-specific. A separate
