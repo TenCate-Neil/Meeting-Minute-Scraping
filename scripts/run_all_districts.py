@@ -56,6 +56,8 @@ def run_one_district(org_id: str, org_name: str, args) -> dict:
         cmd += ["--end-date", args.end_date]
     if args.keep_pdfs:
         cmd += ["--keep-pdfs", "--pdf-dir", str(Path(args.out_dir) / "pdfs" / org_id)]
+    if args.skip_minutes:
+        cmd += ["--skip-minutes"]
 
     print(f"--- Running org {org_id} ({org_name}) ---", file=sys.stderr)
     result = subprocess.run(cmd, capture_output=True, text=True)
@@ -89,6 +91,9 @@ def main():
     parser.add_argument("--start-date", help="Only include meetings on/after this date (YYYY-MM-DD)")
     parser.add_argument("--end-date", help="Only include meetings on/before this date (YYYY-MM-DD)")
     parser.add_argument("--keep-pdfs", action="store_true", help="Persist PDFs for districts with turf hits")
+    parser.add_argument("--skip-minutes", action="store_true",
+                        help="Forwarded to scrape_boardbook.py: skip the minutes pass that "
+                             "confirms outcomes for turf hits")
     parser.add_argument("--sleep", type=float, default=0.5, help="Politeness delay between requests, per district run")
     parser.add_argument("--district-limit", type=int, help="Only process the first N districts from the CSV (smoke testing)")
     parser.add_argument("--export-leads", action="store_true",

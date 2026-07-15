@@ -22,8 +22,24 @@ https://meetings.boardbook.org/Public/Agenda/{orgId}?meeting={meetingId}
     -> HTML view of one meeting's agenda (human-facing page)
 
 https://meetings.boardbook.org/Public/DownloadAgenda/{orgId}?meeting={meetingId}
-    -> the actual PDF, served directly, no login/cookies required
+    -> the agenda PDF, served directly, no login/cookies required
+
+https://meetings.boardbook.org/Public/Minutes/{orgId}?meeting={meetingId}
+    -> HTML view of one meeting's minutes (only for meetings with minutes posted)
+
+https://meetings.boardbook.org/Public/DownloadMinutes/{orgId}?meeting={meetingId}
+    -> the minutes PDF, same access model as DownloadAgenda
 ```
+
+**Agenda vs minutes.** Every meeting has an agenda; only some have minutes
+(on org 795, 756 meetings expose an `Agenda` link and 405 also expose a
+`Minutes` link). The agenda is published *before* the meeting and bundles all
+backup documents (so it is usually the *larger* PDF - e.g. 22 MB agenda vs
+20 MB minutes for meeting 723526); the minutes are published *after* and
+record what was actually decided (motions, votes, outcomes). This pipeline
+uses the **agenda as the primary source for discovery** (earlier, 100%
+coverage, richest detail) and consults the **minutes only to confirm the
+outcome of a turf hit** - see "Confirming outcomes from the minutes" below.
 
 **The important discovery:** the `/Public/...` routes are genuinely public.
 There is a *different* route prefix, `/Meeting/Agenda/...`, that looks similar
@@ -142,6 +158,49 @@ turf context can misclassify. Treat these fields as a triage aid: fine for
 sorting "which of 1,000 documents deserve a closer look" at scale, not a
 substitute for reading the quoted context yourself before citing a finding
 externally.
+
+## Confirming outcomes from the minutes
+
+The agenda tells you what was *proposed*; it cannot tell you what the board
+*decided*, because it is published before the meeting. The per-match `outcome`
+above is therefore a guess inferred from agenda wording (a "sample motion", a
+recommendation), and it is often wrong or simply "Informational only".
+
+To firm this up without doubling the crawl, `process_meeting()` runs a
+**hybrid minutes pass**: only when a meeting is a turf hit, and only if that
+meeting has a minutes PDF, it also downloads
+`/Public/DownloadMinutes/{orgId}?meeting={meetingId}`, finds the turf mentions
+in the minutes, classifies their outcomes, and records the single most
+decisive one (`Approved` > `Denied` > `Tabled` > `Motion made` >
+`Informational only`) as `minutes_outcome`, with a quoted `minutes_context`.
+
+This is cheap because turf hits are rare: across a full rollout only a handful
+of meetings trigger the extra download, so there is no second full pass over
+every agenda. Meetings with no posted minutes get `minutes_available: false`
+and no confirmed outcome; the flag distinguishes "no minutes existed" from
+"minutes existed but the turf item wasn't found in them" (`minutes_available:
+true`, `minutes_outcome: null`). Pass `--skip-minutes` to turn the pass off.
+
+**Known limitation - `minutes_outcome` is a hint, not a verified vote.** It is
+still keyword matching. It uses a wider window than the agenda (±500 chars vs
+±200) because minutes open with a table-of-contents block and record the vote
+farther from the turf term - a tight window lands in the TOC and returns
+"Informational only" even when the item passed. But a wider window also means
+the matched keyword can come from background narrative rather than the roll
+call: on the Leander turf item it correctly returns "Approved", but the
+triggering phrase is "the Bond Oversight Committee unanimously approved [its
+recommendation]", not the board's own recorded vote (which these minutes phrase
+without a nearby "motion carried"). So `minutes_outcome` narrows the answer and
+`minutes_context` quotes the decision area for a human to read; a definitive
+label would need a semantic pass (an LLM read of `minutes_context`), which is
+better suited to the agent-side pipeline than to this keyword scraper.
+
+Why keep the agenda as primary rather than switch to minutes: agendas exist
+for every meeting and appear earlier (better for surfacing a lead before the
+vote), and they carry the detailed backup material where the turf scope and
+dollar figures actually live. The minutes are the authority on the *decision*,
+not on the *detail* - so the two are complementary, and this pipeline uses
+each for what it is best at.
 
 ## Why no headless browser is needed
 

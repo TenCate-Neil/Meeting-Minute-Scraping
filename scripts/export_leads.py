@@ -287,7 +287,13 @@ def build_lead(record: dict, org_id: str, org_meta: dict, discovered_at: str,
     if sentiments:
         detail_bits.append("Sentiments: " + "; ".join(sentiments))
     if outcomes:
-        detail_bits.append("Outcomes: " + "; ".join(outcomes))
+        detail_bits.append("Agenda outcome(s) (heuristic): " + "; ".join(outcomes))
+    # Outcome per the minutes (hybrid pass in scrape_boardbook.py). Present only
+    # for turf hits whose meeting had a posted minutes PDF. Heuristic hint, not
+    # a verified vote result - read minutes_context to confirm.
+    if record.get("minutes_available"):
+        confirmed = record.get("minutes_outcome") or "turf item not located in minutes"
+        detail_bits.append(f"Outcome per minutes (heuristic): {confirmed}")
     if record.get("pages"):
         detail_bits.append(f"Pages: {record['pages']}")
     # Keep the full summary here only if the core one was trimmed.
