@@ -1,0 +1,20 @@
+[
+  {
+    "meeting_id": "333444",
+    "date": "April 1, 2026 at 7:00 PM",
+    "title": "Regular Meeting",
+    "turf_mentioned": true,
+    "matches": [
+      {
+        "term": "artificial turf",
+        "context": "approved installation of artificial turf in the front courtyard landscaping and median strips to reduce irrigation costs",
+        "topic_type": "Facility construction or renovation project",
+        "sentiment": "Positive",
+        "outcome": "Approved"
+      }
+    ],
+    "summary": "1 turf-related mention(s) found (artificial turf); topic(s): Facility construction or renovation project; sentiment(s): Positive.",
+    "error": null,
+    "pages": 12
+  }
+]

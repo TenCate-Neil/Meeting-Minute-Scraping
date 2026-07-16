@@ -18,6 +18,7 @@ This scrapes the ~1,700 organizations listed at
 |---|---|
 | `org_id` | BoardBook's numeric organization ID |
 | `org_name` | Display name as listed on BoardBook |
+| `organization_id` | Shared lead-platform slug for this org, **agent-leading** (e.g. `leander-isd-tx`). Filled from the web-search/agent side so both pipelines emit the same key; blank until an org is reconciled. Used by `scripts/export_leads.py`. |
 | `likely_school_district` | Name-pattern heuristic (`ISD`, `CISD`, `school district`, `academy`, `charter`, `ESD`, `RESA`) |
 | `include_in_rollout` | Defaults to the heuristic; **edit this column by hand** |
 | `state` | 2-letter USPS abbreviation (or `DC`) |

@@ -101,7 +101,8 @@ The scrape/analysis output above is per-document and repo-specific. A separate
 final step converts turf-hit documents into the **shared core-lead shape**
 (`contracts/lead.schema.json`, contract v2.0) that both this pipeline and the
 web-search agent pipeline feed into the same Supabase/Retool platform. This
-step never changes the scraping/analysis logic or its output files.
+step never changes the scraping/analysis logic or its output files, and it is a
+plain deterministic script — no LLM/agent calls on the meeting-minutes side.
 
 ```bash
 # A directory of org_<id>.json files (what run_all_districts.py writes):
@@ -110,49 +111,67 @@ python3 scripts/export_leads.py --input output/districts
 # A single results file whose name does not encode the org id:
 python3 scripts/export_leads.py --input output/leander_2026.json --org 795
 
-# Align organization_id with the shared registry (recommended before merging):
+# Use the shared registry as the authoritative organization_id source:
 python3 scripts/export_leads.py --input output/districts \
   --org-registry ../Lead-Scrapper-Webpage/organizations/registry.json
 ```
 
 How it behaves:
 
-- Keeps only documents with `turf_mentioned: true`; one lead per document.
-- Joins `org_name` / `state` / `county` from `districts/org_directory.csv` on
-  the BoardBook `org_id` (the per-document JSON does not carry these itself).
-- Computes a deterministic `external_id` so the same document re-analyzed later
+- Keeps only documents with `turf_mentioned: true`, and only leads whose turf is
+  for **football / soccer / baseball-softball** (a stadium counts as
+  football/soccer). Other turf (landscaping, courtyards) is dropped.
+- **One lead per project:** an org's turf-hit documents are aggregated into a
+  single project, so several meetings about the same initiative collapse to one
+  lead rather than one-per-meeting. (Splitting a board action into per-facility
+  leads — e.g. separate stadiums — needs a semantic pass and is a follow-up.)
+- Joins `org_name` / `organization_id` / `state` / `county` from
+  `districts/org_directory.csv` on the BoardBook `org_id` (the per-document JSON
+  does not carry these itself).
+- Computes a deterministic `external_id` so the same project re-exported later
   produces the same id — Supabase upserts stay idempotent.
 - **Ledger-first:** `leads/ledger.json` holds every lead ever exported. Each
   run appends only new ids and writes just the new leads to
   `exports/<UTC timestamp>/leads.json`. Re-running adds nothing new.
 - Validates every record against the schema and refuses to write invalid ones
-  (a document whose org has no enriched `state`, for example, cannot form a
-  valid lead and is reported rather than written).
+  (a project whose org has no enriched `state`, for example, cannot form a valid
+  lead and is reported rather than written).
 
 `leads/ledger.json` is committed; the per-run `exports/` snapshots are
-gitignored (reproducible from the ledger). Both `source` values are fixed:
-every lead from this repo is `source: "meeting-minutes"`.
+gitignored (reproducible from the ledger). `source` is fixed: every lead from
+this repo is `source: "meeting-minutes"`.
 
 ### Staying compatible with the web-search pipeline
 
 Both pipelines feed one platform (Supabase, surfaced in Retool), so leads must
-line up. This repo was checked against the web-search repo's live contract:
+line up field-for-field with the web-search pipeline's ledger:
 
 - **Schema** — `contracts/lead.schema.json` is structurally identical to that
-  repo's copy, so a lead validated here is valid there.
-- **`external_id`** — the two recipes differ by construction (this repo hashes
-  `org_id|meeting_id|mm-turf`), so leads from the two pipelines never collide
-  on the upsert key.
+  repo's copy (`additionalProperties: false`), so a lead validated here is valid
+  there. No extra/renamed fields.
+- **`external_id`** — the **same recipe** as the web pipeline, verified
+  byte-for-byte against its ledger:
+  `sha1(organization | project_name | project_address)` truncated to 16 hex
+  chars. `project_name` feeds the hash, so it is derived from the org + scope
+  (not the meeting date) to stay stable across meetings.
+- **`organization_id`** — the shared join key, **agent-leading**. It comes from
+  the `organization_id` column in `districts/org_directory.csv`, which holds the
+  id the web-search/agent side assigns (e.g. `leander-isd-tx`). `--org-registry`
+  can override it as an authoritative source. Orgs with neither fall back to a
+  locally-generated slug and are flagged `needs_review` for reconciliation. New
+  organizations are defined once on the agent side; this repo reuses those ids
+  rather than minting a parallel scheme.
 - **`county`** — stored without the `" County"` suffix (e.g. `Williamson`) to
-  match the web-search registry's convention.
-- **`organization_id`** — the shared join key. Pass `--org-registry` pointing
-  at the web-search repo's `organizations/registry.json` (or, later, a Supabase
-  export of it) and `organization_id`/`county` are taken from the registry so
-  both pipelines emit the same values for the same org. Orgs not yet in the
-  registry keep a locally-generated slug and are flagged `needs_review` so they
-  are reconciled rather than silently duplicated. Without the flag, slugs are
-  generated with the same rule the registry uses (`name` + lowercase state,
-  e.g. `leander-isd-tx`).
+  match the shared convention.
+- **`location_id`** — derived `us-<state>-meeting-minutes`.
+
+Note on deduplication: because `external_id` is a pure function of
+`organization` + `project_name` + `project_address`, two pipelines only
+auto-collide on the upsert key when all three match exactly. The meeting-minutes
+side does not reproduce the agent's curated `project_name`/`project_address`, so
+cross-pipeline dedup is **not** exact for now — leads should be checked against
+existing rows at load time (a later, non-exact/agent step), and meeting-minutes
+leads carry the meeting date in `evidence.details` to help decide new-vs-update.
 
 Writing leads into Supabase itself is out of scope for this repo; it produces
 schema-valid lead files and the ledger that a loader (or the platform) upserts.

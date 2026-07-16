@@ -1,4 +1,42 @@
 {
   "schema_version": "2.0",
-  "leads": []
+  "leads": [
+    {
+      "external_id": "23e580ae7f87c63c",
+      "source": "meeting-minutes",
+      "organization": "Leander ISD",
+      "organization_id": "leander-isd-tx",
+      "state": "TX",
+      "county": "Williamson",
+      "summary": "Leander ISD: artificial turf replacement for football/soccer and baseball/softball field(s); board approved the item (per board minutes, February 5, 2026).",
+      "evidence_quote": "ura Marques: In favor, Nekosi Nelson: In favor, Anna Smith: In favor. C. OPERATIONS 1. Consider Approval of Bond Oversight Committee Recommendation to Reallocate Bond Funds for the Replacement of Artificial Turf at AC Bible and Monroe Regional Stadiums I move that the Board approve the Bond Oversight Committee's recommendation to reallocate up to $1,600,000 from 2023 Bond Project Line Item: Baseball & Soft",
+      "source_url": "https://meetings.boardbook.org/Public/Agenda/795?meeting=725242",
+      "discovered_at": "2026-07-16T12:00:00Z",
+      "location_id": "us-tx-meeting-minutes",
+      "evidence": {
+        "project_name": "Leander ISD - artificial turf replacement",
+        "project_address": "",
+        "projected_start_date": "",
+        "details": "Turf discussion across 2 meeting document(s): January 22, 2026 (meeting 723526); February 5, 2026 (meeting 725242). Matched terms: artificial turf, turf system. Topics (heuristic): Budget / capital expenditure; Facility construction or renovation project; Policy or safety discussion (e.g., heat, injury, environmental). Sentiments (heuristic): Mixed; Negative; Neutral / factual; Positive. Agenda outcome(s) (heuristic): Approved; Informational only. Sport (heuristic, from evidence text): football/soccer and baseball/softball. project_address not resolved from the minutes; left blank for an enrichment step.",
+        "contact": {
+          "first_name": "",
+          "last_name": "",
+          "title": "",
+          "phone": "",
+          "email": ""
+        },
+        "source_urls": [
+          "https://meetings.boardbook.org/Public/Organization/795",
+          "https://meetings.boardbook.org/Public/Agenda/795?meeting=723526",
+          "https://meetings.boardbook.org/Public/Agenda/795?meeting=725242"
+        ],
+        "matched_terms": [
+          "artificial turf",
+          "turf system"
+        ],
+        "needs_review": false,
+        "run_timestamp": "20260716T120000Z"
+      }
+    }
+  ]
 }
