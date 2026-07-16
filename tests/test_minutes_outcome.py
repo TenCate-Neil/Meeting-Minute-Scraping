@@ -78,8 +78,10 @@ class ExportSurfacesConfirmedOutcomeTest(unittest.TestCase):
         return record
 
     def _details(self, record):
-        lead = export_leads.build_lead(
-            record, "795", self.ORG_META,
+        # build_lead takes an org's turf-hit documents (a list) and returns
+        # (lead, ident); one document here is a single-meeting project.
+        lead, _ = export_leads.build_lead(
+            [record], "795", self.ORG_META,
             discovered_at="2026-07-14T09:12:00Z", run_stamp="20260714T091200Z",
         )
         return lead["evidence"]["details"]
