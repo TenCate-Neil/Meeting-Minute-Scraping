@@ -1,0 +1,48 @@
+[
+  {
+    "meeting_id": "749130",
+    "date": "June 15, 2026 at 6:00 PM",
+    "title": "Omaha Public Schools Board of Education Meeting",
+    "turf_mentioned": true,
+    "matches": [
+      {
+        "term": "artificial turf",
+        "context": "Approval of the contract for replacement of the artificial turf at the district football stadium, as recommended by the facilities committee",
+        "topic_type": "Procurement / bid / contract award",
+        "sentiment": "Neutral / factual",
+        "outcome": "Approved"
+      }
+    ],
+    "summary": "1 turf-related mention(s) found (artificial turf); topic(s): Procurement / bid / contract award; sentiment(s): Neutral / factual.",
+    "error": null,
+    "pages": 214,
+    "minutes_available": true,
+    "minutes_outcome": "Approved",
+    "minutes_context": "Motion to approve the artificial turf replacement at the stadium carried, seven in favor.",
+    "minutes_pages": 12,
+    "platform": "sparq",
+    "platform_org_id": "120",
+    "org_url": "https://meeting.sparqdata.com/Public/Organization/120",
+    "agenda_url": "https://meeting.sparqdata.com/Public/Agenda/120?meeting=749130",
+    "minutes_url": "https://meeting.sparqdata.com/Public/Minutes/120?meeting=749130"
+  },
+  {
+    "meeting_id": "746907",
+    "date": "May 18, 2026 at 6:00 PM",
+    "title": "Board of Education Workshop",
+    "turf_mentioned": false,
+    "matches": [],
+    "summary": "",
+    "error": null,
+    "pages": 40,
+    "minutes_available": false,
+    "minutes_outcome": null,
+    "minutes_context": "",
+    "minutes_pages": 0,
+    "platform": "sparq",
+    "platform_org_id": "120",
+    "org_url": "https://meeting.sparqdata.com/Public/Organization/120",
+    "agenda_url": "https://meeting.sparqdata.com/Public/Agenda/120?meeting=746907",
+    "minutes_url": ""
+  }
+]

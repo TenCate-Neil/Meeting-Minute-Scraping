@@ -1,0 +1,5 @@
+organization_id,org_name,state,county,counties,place,platform,platform_org_id,likely_school_district,include_in_rollout,notes
+leander-isd-tx,Leander ISD,TX,Williamson County,,,boardbook,795,True,True,
+,Omaha Public Schools,NE,Douglas County,,,sparq,120,True,True,NE pilot
+,Kingsport City Schools,TN,Sullivan County,,,boeconnect,kcs,True,True,East TN pilot; dual-hosted - also on boarddocs (tn/kingscs)
+,City School District of Albany,NY,Albany County,,,boarddocs,ny/albany,True,True,
