@@ -87,14 +87,22 @@ Everything below was verified directly against the agent repo (provided
 
 ### 3. Delivery into Supabase — no sync path exists for this repo's ledger
 
-- The agent repo pushes via `sync/push_to_supabase.py` + a GitHub Actions
-  workflow, but both read only **that repo's** `leads/ledger.json`. Nothing
-  reads this repo's ledger today.
-- Options, one to be chosen:
-  - **(a) Per-repo sync (recommended):** copy a trimmed sync (lead table
-    only, same PostgREST upsert on `external_id`, lifecycle columns never
-    sent) plus a matching workflow into this repo, using the same Supabase
-    secrets. Decoupled, idempotent, smallest blast radius.
+**Status: implemented** (option a). `sync/push_to_supabase.py` +
+`.github/workflows/sync-supabase.yml`, lead table only, upsert on
+`external_id`, lifecycle columns never sent. It also implements gap 2's
+FK safety at push time: organization_ids not yet registered in the shared
+organization table are sent as null with a warning, so unreconciled leads
+load instead of being rejected. Verified against the live project: push,
+idempotent re-run, and the lead row visible with `source=meeting-minutes`
+and `status=New`.
+
+- Original analysis: the agent repo pushes via `sync/push_to_supabase.py` +
+  a GitHub Actions workflow, but both read only **that repo's**
+  `leads/ledger.json`.
+- Options considered:
+  - **(a) Per-repo sync (chosen):** trimmed sync (lead table only) plus a
+    matching workflow in this repo, using the same Supabase secrets.
+    Decoupled, idempotent, smallest blast radius.
   - (b) Extend the agent's sync to read both ledgers — couples the repos.
   - (c) Merge this ledger into the agent's ledger — single ingestion point,
     but their write-validation hook currently enforces the contradictory

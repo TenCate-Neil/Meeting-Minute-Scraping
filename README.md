@@ -202,8 +202,33 @@ cross-pipeline dedup is **not** exact for now — leads should be checked agains
 existing rows at load time (a later, non-exact/agent step), and meeting-minutes
 leads carry the meeting date in `evidence.details` to help decide new-vs-update.
 
-Writing leads into Supabase itself is out of scope for this repo; it produces
-schema-valid lead files and the ledger that a loader (or the platform) upserts.
+## Pushing leads to Supabase
+
+`sync/push_to_supabase.py` upserts the ledger into the shared Supabase `lead`
+table (the same table the web-search agent pipeline writes to; created by that
+repo's `sql/schema.sql`). Only the lead table is synced from here — the
+organization / search_area / source / run tables are owned by the agent repo.
+
+```bash
+python3 sync/push_to_supabase.py --dry-run   # transform + print, no network
+python3 sync/push_to_supabase.py             # push (needs sync/.env, see .env.example)
+```
+
+How it behaves:
+
+- **Idempotent:** upserts on `external_id`; re-running only refreshes rows.
+- **Never touches lifecycle state:** `status`, `rejected_reason` and
+  `assigned_bdm` are BDM-owned columns managed in Retool; the sync does not
+  send them, so edits there survive every re-sync.
+- **Foreign-key preflight:** `lead.organization_id` references the shared
+  `organization` table, which the agent side owns. A lead whose id is not
+  registered there yet is pushed with `organization_id` null (and a warning),
+  instead of the whole batch being rejected; the ledger keeps the local id, so
+  a re-run after the org is registered fills the column in.
+
+`.github/workflows/sync-supabase.yml` runs the same script automatically when
+`leads/ledger.json` changes on `main` (requires the `SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY` repo secrets, the same ones the agent repo uses).
 
 ## Known limitations
 

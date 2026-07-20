@@ -1,0 +1,43 @@
+name: Sync leads to Supabase
+
+# Pushes the lead ledger into the shared Supabase `lead` table whenever it
+# changes on the default branch, plus a manual trigger. Mirrors the web-search
+# agent repo's sync workflow; this repo syncs ONLY the lead table (the
+# organization / search_area / source / run tables are owned by that repo).
+#
+# Required repo secrets (Settings -> Secrets and variables -> Actions):
+#   SUPABASE_URL                 e.g. https://<project>.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY    service_role key (secret; bypasses RLS)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "leads/ledger.json"
+      - "sync/push_to_supabase.py"
+  workflow_dispatch: {}
+
+# One sync at a time. Upserts are idempotent, so a superseded run is harmless.
+concurrency:
+  group: sync-supabase
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Transform only, no network — fails fast if the ledger is malformed.
+      - name: Dry run
+        run: python3 sync/push_to_supabase.py --dry-run
+
+      - name: Push to Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python3 sync/push_to_supabase.py
