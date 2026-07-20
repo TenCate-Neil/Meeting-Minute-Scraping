@@ -1,0 +1,5 @@
+platform,platform_org_id,org_name,state,likely_school_district,include_in_rollout,notes
+boardbook,2345,Chanute USD 413,KS,True,True,live but NOT in the public BoardBook directory (research pass 2026-07-20; name re-verified from live page title) - directory refreshes cannot discover it
+boardbook,3223,Dodge City USD 443,KS,True,True,live but NOT in the public BoardBook directory (research pass 2026-07-20; name re-verified from live page title)
+boardbook,2712,Garden City USD 457,KS,True,True,live but NOT in the public BoardBook directory (research pass 2026-07-20; name re-verified from live page title)
+boardbook,3307,Blue Valley USD 229,KS,True,True,live but NOT in the public BoardBook directory (research pass 2026-07-20); mid-migration - also on boarddocs (ks/usd229)

@@ -1,0 +1,10 @@
+platform,platform_org_id,org_name,state,county,likely_school_district,include_in_rollout,notes
+agendaquick,56697,Knox County Schools,TN,Knox County,True,True,adapter deferred; AgendaQuick/Destiny (public.destinyhosted.com/agenda_publish.cfm?id=56697); largest East TN district; archives to 2009
+diligent-community,usd383,Manhattan-Ogden USD 383,KS,,True,True,adapter deferred; Diligent Community (usd383.community.diligentoneplatform.com); name shorthand from research - confirm at enrichment
+diligent-community,usd475,Geary County USD 475,KS,Geary County,True,True,adapter deferred; Diligent Community; name shorthand from research - confirm at enrichment
+diligent-community,kckps,Kansas City Kansas Public Schools,KS,Wyandotte County,True,True,adapter deferred; Diligent Community; mid-migration - also on boarddocs (ks/kckps)
+diligent-community,usd-345,Seaman USD 345,KS,,True,True,adapter deferred; Diligent Community; name shorthand from research - confirm at enrichment
+diligent-community,abileneschools,Abilene Public Schools,KS,,True,True,adapter deferred; Diligent Community; name shorthand from research - confirm at enrichment
+diligent-community,caney,Caney Valley Schools,KS,,True,True,adapter deferred; Diligent Community; name shorthand from research - confirm at enrichment
+diligent-community,usd379-org,Clay County USD 379,KS,Clay County,True,True,adapter deferred; Diligent Community; name shorthand from research - confirm at enrichment
+diligent-community,ashevillecityschools,Asheville City Schools,NC,Buncombe County,True,True,adapter deferred; Diligent Community; Western NC pilot
