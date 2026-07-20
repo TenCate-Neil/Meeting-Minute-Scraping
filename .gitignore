@@ -5,3 +5,6 @@ __pycache__/
 # Per-run lead export snapshots are reproducible from leads/ledger.json;
 # the ledger itself IS tracked. (At scale, the ledger will move out of git.)
 exports/
+
+# Local Supabase credentials for sync/push_to_supabase.py (see sync/.env.example)
+sync/.env
