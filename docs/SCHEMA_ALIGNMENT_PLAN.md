@@ -143,6 +143,50 @@ Everything below was verified directly against the agent repo (provided
   addresses, which would also improve cross-pipeline `external_id`
   convergence (gap 5).
 
+## Follow-up decisions (agreed in planning, 2026-07-20)
+
+### Organization geography: multi-county and city-based districts
+
+Use the agent's organization contract as-is instead of restructuring the
+directory: `primary_county` stays the single required county; many-to-many
+coverage goes in the org's `geography[]` array (`{kind: county|place,
+value}`), which syncs to the `organization_geography` join table.
+Directory changes: keep `county` (= primary), add an optional delimited
+`counties` column and a `place` column; the org-registration step maps them
+to `geography[]`. City-anchored districts get `kind: place` rows, with
+`primary_county` still filled (independent cities are their own
+county-equivalent). BDM county-level filtering runs on
+`organization_geography`, which shows a spanning district under all its
+counties.
+
+### location_id naming: county-level, not state-level
+
+BDM territories are county-scale, so leads derive
+`us-<state>-<primary-county-slug>-meeting-minutes`
+(e.g. `us-tx-williamson-meeting-minutes`) instead of the state-level slug in
+gap 4. Each such id is registered as a `search_area` row (`type: county`),
+generated from the directory for counties that have rollout districts.
+Known trade-off: a multi-county district's leads carry only the primary
+county's location_id; full territory mapping comes from
+`organization_geography`, with location_id as the coarse filter and
+provenance marker.
+
+### Scrape logging: document-level state + shared run tables
+
+Two layers:
+
+1. **Document-level (new in this repo):** a tracked `scrape_state.json`
+   keyed by `(org_id, meeting_id)` with `scraped_at`, agenda-processed and
+   minutes-captured flags. Skip a meeting only when the agenda was processed
+   AND minutes were captured (or none are expected); a turf-hit meeting
+   without minutes is rechecked on later runs, because `minutes_outcome`
+   only exists once minutes are posted.
+2. **Run-level (reuse agent infrastructure):** write a `run_manifest.json`
+   per scrape (stage `scrape`, key `location_id + run_timestamp`) and
+   maintain `location_state` rows (`last_scraped`, `next_due`) for the
+   meeting-minutes search areas, so scrape recency is visible in the same
+   Supabase tables (`run`, `location_state`) both pipelines already share.
+
 ## Suggested order of implementation
 
 1. **Gap 1** — agree the corrected lead schema with the agent side and take
