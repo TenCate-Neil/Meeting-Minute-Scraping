@@ -44,6 +44,15 @@ should be committed. If a specific finding needs to be preserved long-term
 PDF out of `output/` into wherever your evidence/citation workflow lives -
 don't rely on the scraper's working directory as permanent storage.
 
+## The scrape state IS committed
+
+`state/scrape_state.json` records, per org and meeting, when a document was
+scraped and whether its minutes were captured. It is small (a few flags per
+meeting, no document content) and it is what makes re-runs cheap: without it
+every rollout would re-download every agenda PDF. Commit it after a scrape
+run, like `leads/ledger.json`. The full skip/recheck rules live in
+`scripts/scrape_state.py` and the README ("Incremental re-runs").
+
 ## Retention of the district directory CSV
 
 `districts/org_directory.csv`, by contrast, **is** meant to be committed. It

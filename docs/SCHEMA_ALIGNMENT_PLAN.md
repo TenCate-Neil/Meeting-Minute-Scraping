@@ -173,7 +173,11 @@ provenance marker.
 
 ### Scrape logging: document-level state + shared run tables
 
-Two layers:
+Two layers. Layer 1 is **implemented** (`scripts/scrape_state.py` +
+`state/scrape_state.json`; see README "Incremental re-runs"). Layer 2 —
+run-level visibility in the shared `run` / `location_state` tables — stays
+planned; double-scrape prevention itself is entirely layer 1 and concerns
+only this repo (the agent pipeline keeps its own re-run bookkeeping).
 
 1. **Document-level (new in this repo):** a tracked `scrape_state.json`
    keyed by `(org_id, meeting_id)` with `scraped_at`, agenda-processed and

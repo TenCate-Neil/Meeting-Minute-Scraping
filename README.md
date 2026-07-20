@@ -25,6 +25,7 @@ scripts/
   scrape_boardbook.py      Scrape + analyze one district (one BoardBook org ID)
   run_all_districts.py     Orchestrate scrape_boardbook.py across a curated district list
   export_leads.py          Convert turf-hit documents into the shared core-lead shape
+  scrape_state.py          Document-level scrape state: skip/recheck decisions for re-runs
 instructions/
   analysis_instructions.md What to search for, what to extract, and the output format
 contracts/
@@ -37,6 +38,8 @@ districts/
   org_directory.csv        Master list of BoardBook orgs (generated, then human-curated)
 leads/
   ledger.json              Every lead ever exported, keyed by external_id (tracked)
+state/
+  scrape_state.json        What was scraped when, per org/meeting (tracked)
 exports/                   Per-run export snapshots (generated) - gitignored
 output/                    Script output (JSON/CSV results, optionally PDFs) - gitignored
 ```
@@ -94,6 +97,32 @@ only a handful of downloads per rollout since turf hits are rare. Pass
 `--skip-minutes` to turn it off. See
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ("Confirming outcomes from the
 minutes") for the rationale and the agenda-vs-minutes trade-off.
+
+### Incremental re-runs (no double scraping)
+
+Re-running the scraper does not re-download documents it already captured.
+`state/scrape_state.json` (tracked in git, unlike `output/`) records, per org
+and meeting, when it was scraped and what was captured. On each run the
+scraper skips a meeting unless something is still missing:
+
+- a meeting never seen before is processed;
+- a meeting whose PDF could not be fetched last time is **retried** (documents
+  are often posted late) — until the meeting is older than
+  `--minutes-recheck-days` (default 180), after which it is finalized;
+- a turf-hit meeting whose minutes were not yet posted is **rechecked**, since
+  the confirmed decision (`minutes_outcome`) only exists once minutes appear;
+- everything else is skipped.
+
+The per-org JSON output stays cumulative: records for skipped meetings are
+carried forward from the existing output file, so `export_leads.py` always
+sees the org's full turf-hit history. Each org also gets a `last_scraped_at`
+stamp, answering "when did we last scrape this district".
+
+Escape hatches: `--force-rescrape` re-processes everything (still updating the
+state), `--no-state` ignores the mechanism entirely, and an explicit
+`--meeting-id` run is always processed. This state covers the
+meeting-minutes scraping only; the web-search agent pipeline keeps its own
+re-run bookkeeping in its own repo.
 
 ## Exporting leads (shared platform shape)
 

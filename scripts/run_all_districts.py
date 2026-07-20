@@ -23,6 +23,7 @@ from pathlib import Path
 # export step (--export-leads). Kept as a plain import, no agents involved.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import export_leads  # noqa: E402
+import scrape_state  # noqa: E402
 
 
 def load_districts(csv_path: Path) -> list:
@@ -58,6 +59,13 @@ def run_one_district(org_id: str, org_name: str, args) -> dict:
         cmd += ["--keep-pdfs", "--pdf-dir", str(Path(args.out_dir) / "pdfs" / org_id)]
     if args.skip_minutes:
         cmd += ["--skip-minutes"]
+    if args.no_state:
+        cmd += ["--no-state"]
+    else:
+        cmd += ["--state-file", args.state_file,
+                "--minutes-recheck-days", str(args.minutes_recheck_days)]
+        if args.force_rescrape:
+            cmd += ["--force-rescrape"]
 
     print(f"--- Running org {org_id} ({org_name}) ---", file=sys.stderr)
     result = subprocess.run(cmd, capture_output=True, text=True)
@@ -95,6 +103,16 @@ def main():
                         help="Forwarded to scrape_boardbook.py: skip the minutes pass that "
                              "confirms outcomes for turf hits")
     parser.add_argument("--sleep", type=float, default=0.5, help="Politeness delay between requests, per district run")
+    parser.add_argument("--state-file", default=str(scrape_state.DEFAULT_STATE_FILE),
+                        help="Forwarded to scrape_boardbook.py: tracked scrape-state JSON so "
+                             "re-runs skip meeting documents already captured")
+    parser.add_argument("--no-state", action="store_true",
+                        help="Forwarded to scrape_boardbook.py: disable the scrape state entirely")
+    parser.add_argument("--force-rescrape", action="store_true",
+                        help="Forwarded to scrape_boardbook.py: ignore skip decisions, still record state")
+    parser.add_argument("--minutes-recheck-days", type=int, default=scrape_state.DEFAULT_RECHECK_DAYS,
+                        help="Forwarded to scrape_boardbook.py: stop rechecking missing "
+                             "documents/minutes for meetings older than this many days")
     parser.add_argument("--district-limit", type=int, help="Only process the first N districts from the CSV (smoke testing)")
     parser.add_argument("--export-leads", action="store_true",
                         help="After the rollout, export turf-hit documents to the shared "

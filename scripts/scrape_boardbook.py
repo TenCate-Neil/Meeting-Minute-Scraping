@@ -28,6 +28,8 @@ import requests
 from bs4 import BeautifulSoup
 from PyPDF2 import PdfReader
 
+import scrape_state
+
 BASE_URL = "https://meetings.boardbook.org"
 USER_AGENT = "Mozilla/5.0 (compatible; MeetingMinuteResearchBot/1.0; contact: n.basson@tencategrass.com)"
 
@@ -404,27 +406,65 @@ def format_report(results: list) -> str:
     return "\n".join(lines)
 
 
-def write_csv(results: list, path: Path):
+def result_to_record(r: AnalysisResult) -> dict:
+    """The per-document JSON record shape written to the output file."""
+    return {
+        "meeting_id": r.meeting.meeting_id,
+        "date": r.meeting.date_str,
+        "title": r.meeting.title,
+        "turf_mentioned": r.turf_mentioned,
+        "matches": r.matches,
+        "summary": r.summary,
+        "error": r.error,
+        "pages": r.pages,
+        "minutes_available": r.minutes_available,
+        "minutes_outcome": r.minutes_outcome,
+        "minutes_context": r.minutes_context,
+        "minutes_pages": r.minutes_pages,
+    }
+
+
+def merge_records(prior: list, new: list) -> list:
+    """Merge this run's records into the records of an existing output file.
+
+    Keyed by meeting_id: a reprocessed meeting replaces its old record in
+    place, meetings skipped this run keep their carried-forward record, and
+    brand-new meetings are appended. This keeps the output file cumulative,
+    so meetings skipped via the scrape state stay visible to export_leads.py.
+    """
+    new_by_id = {str(r.get("meeting_id")): r for r in new}
+    merged = []
+    seen = set()
+    for r in prior:
+        mid = str(r.get("meeting_id"))
+        merged.append(new_by_id.get(mid, r))
+        seen.add(mid)
+    merged.extend(r for r in new if str(r.get("meeting_id")) not in seen)
+    return merged
+
+
+def write_csv(records: list, path: Path):
     with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(
             ["meeting_id", "date", "title", "turf_mentioned", "num_matches", "topic_types", "sentiments", "outcomes", "minutes_outcome", "summary", "pages", "error"]
         )
-        for r in results:
+        for r in records:
+            matches = r.get("matches") or []
             writer.writerow(
                 [
-                    r.meeting.meeting_id,
-                    r.meeting.date_str,
-                    r.meeting.title,
-                    r.turf_mentioned,
-                    len(r.matches),
-                    "; ".join(sorted({m["topic_type"] for m in r.matches})),
-                    "; ".join(sorted({m["sentiment"] for m in r.matches})),
-                    "; ".join(sorted({m["outcome"] for m in r.matches})),
-                    r.minutes_outcome or "",
-                    r.summary,
-                    r.pages,
-                    r.error or "",
+                    r.get("meeting_id"),
+                    r.get("date"),
+                    r.get("title"),
+                    r.get("turf_mentioned"),
+                    len(matches),
+                    "; ".join(sorted({m["topic_type"] for m in matches})),
+                    "; ".join(sorted({m["sentiment"] for m in matches})),
+                    "; ".join(sorted({m["outcome"] for m in matches})),
+                    r.get("minutes_outcome") or "",
+                    r.get("summary"),
+                    r.get("pages"),
+                    r.get("error") or "",
                 ]
             )
 
@@ -445,9 +485,25 @@ def main():
                         help="Do not fetch the minutes to confirm outcomes for turf hits "
                              "(by default, meetings with a turf mention also pull the "
                              "minutes PDF, when one exists, to record the decision)")
+    parser.add_argument("--state-file", default=str(scrape_state.DEFAULT_STATE_FILE),
+                        help="Tracked scrape-state JSON that records what was scraped when, "
+                             "so re-runs skip documents already captured (see scripts/scrape_state.py)")
+    parser.add_argument("--no-state", action="store_true",
+                        help="Do not read or write the scrape state (process everything, remember nothing)")
+    parser.add_argument("--force-rescrape", action="store_true",
+                        help="Ignore the scrape state's skip decisions but still record results into it")
+    parser.add_argument("--minutes-recheck-days", type=int, default=scrape_state.DEFAULT_RECHECK_DAYS,
+                        help="Stop rechecking a meeting whose document/minutes never appeared "
+                             "once the meeting is older than this many days")
     args = parser.parse_args()
 
     session = get_session()
+
+    state = None
+    state_path = Path(args.state_file)
+    if not args.no_state:
+        state = scrape_state.load_state(state_path)
+    now = scrape_state.utc_now()
 
     if args.meeting_id:
         meetings = [MeetingRef(meeting_id=args.meeting_id, title="(manual)", date_str="(manual)", parsed_date=None)]
@@ -465,12 +521,39 @@ def main():
         if args.limit:
             meetings = meetings[: args.limit]
 
+    # Skip meetings the state says are fully captured. An explicit --meeting-id
+    # is always processed (it is a deliberate re-run of one meeting).
+    if state is not None and not args.meeting_id and not args.force_rescrape:
+        to_process = []
+        skipped = 0
+        for m in meetings:
+            entry = scrape_state.get_entry(state, args.org, m.meeting_id)
+            process, reason = scrape_state.should_process(entry, now, args.minutes_recheck_days)
+            if process:
+                to_process.append(m)
+                continue
+            if reason in ("document_overdue", "minutes_overdue"):
+                scrape_state.mark_final(state, args.org, m.meeting_id, reason, now)
+            skipped += 1
+        if skipped:
+            print(
+                f"Skipping {skipped} already-scraped meeting(s) per {state_path} "
+                f"(--force-rescrape to override).",
+                file=sys.stderr,
+            )
+        meetings = to_process
+
     pdf_dir = Path(args.pdf_dir)
     results = []
     for i, meeting in enumerate(meetings, 1):
         print(f"[{i}/{len(meetings)}] {meeting.date_str} - {meeting.title} (id={meeting.meeting_id})", file=sys.stderr)
         result = process_meeting(session, args.org, meeting, args.keep_pdfs, pdf_dir, args.skip_minutes)
         results.append(result)
+        if state is not None:
+            scrape_state.record_result(
+                state, args.org, meeting.meeting_id, meeting.date_str,
+                result.error, result.turf_mentioned, result.minutes_available, now,
+            )
         if result.turf_mentioned:
             confirmed = ""
             if result.minutes_available:
@@ -479,37 +562,34 @@ def main():
         if i < len(meetings):
             time.sleep(args.sleep)
 
+    if state is not None:
+        scrape_state.touch_org(state, args.org, now)
+        scrape_state.save_state(state_path, state)
+
+    # Merge into an existing output file so records for meetings skipped via
+    # the scrape state are carried forward and export_leads.py still sees the
+    # org's full turf-hit history, not just this run's new documents.
     out_json = Path(args.out_json)
     out_json.parent.mkdir(parents=True, exist_ok=True)
+    prior_records = []
+    if out_json.exists():
+        try:
+            with out_json.open(encoding="utf-8") as f:
+                prior_records = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            prior_records = []
+        if not isinstance(prior_records, list):
+            prior_records = []
+    records = merge_records(prior_records, [result_to_record(r) for r in results])
     with out_json.open("w", encoding="utf-8") as f:
-        json.dump(
-            [
-                {
-                    "meeting_id": r.meeting.meeting_id,
-                    "date": r.meeting.date_str,
-                    "title": r.meeting.title,
-                    "turf_mentioned": r.turf_mentioned,
-                    "matches": r.matches,
-                    "summary": r.summary,
-                    "error": r.error,
-                    "pages": r.pages,
-                    "minutes_available": r.minutes_available,
-                    "minutes_outcome": r.minutes_outcome,
-                    "minutes_context": r.minutes_context,
-                    "minutes_pages": r.minutes_pages,
-                }
-                for r in results
-            ],
-            f,
-            indent=2,
-        )
+        json.dump(records, f, indent=2)
 
     out_csv = Path(args.out_csv)
-    write_csv(results, out_csv)
+    write_csv(records, out_csv)
 
     report = format_report(results)
     print(report)
-    print(f"\nJSON written to: {out_json}", file=sys.stderr)
+    print(f"\nJSON written to: {out_json} ({len(records)} record(s), {len(results)} from this run)", file=sys.stderr)
     print(f"CSV written to: {out_csv}", file=sys.stderr)
 
 
