@@ -1,4 +1,210 @@
 {
-  "schema_version": "1.0",
-  "orgs": {}
+  "orgs": {
+    "795": {
+      "last_scraped_at": "2026-07-20T11:59:43Z",
+      "meetings": {
+        "450586": {
+          "agenda_processed": true,
+          "date": "CancelledFebruary 11, 2021 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "450589": {
+          "agenda_processed": true,
+          "date": "CancelledFebruary 18, 2021 at 5:00 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "527311": {
+          "agenda_processed": true,
+          "date": "CancelledMay 17, 2022 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "567376": {
+          "agenda_processed": true,
+          "date": "CancelledFebruary 2, 2023 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "722353": {
+          "agenda_processed": true,
+          "date": "January 8, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "723526": {
+          "agenda_processed": true,
+          "date": "January 22, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": true,
+          "minutes_final": true,
+          "turf_mentioned": true
+        },
+        "725242": {
+          "agenda_processed": true,
+          "date": "February 5, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": true,
+          "minutes_final": true,
+          "turf_mentioned": true
+        },
+        "725257": {
+          "agenda_processed": true,
+          "date": "February 19, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "727489": {
+          "agenda_processed": true,
+          "date": "CancelledJanuary 27, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "729626": {
+          "agenda_processed": true,
+          "date": "March 12, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "730471": {
+          "agenda_processed": true,
+          "date": "March 26, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "731756": {
+          "agenda_processed": true,
+          "date": "February 24, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "732083": {
+          "agenda_processed": true,
+          "date": "April 2, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "734075": {
+          "agenda_processed": true,
+          "date": "March 10, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "736449": {
+          "agenda_processed": true,
+          "date": "April 23, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "738502": {
+          "agenda_processed": true,
+          "date": "May 7, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "738588": {
+          "agenda_processed": true,
+          "date": "May 21, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "741322": {
+          "agenda_processed": true,
+          "date": "June 4, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "744782": {
+          "agenda_processed": true,
+          "date": "June 18, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        },
+        "754582": {
+          "agenda_processed": true,
+          "date": "July 14, 2026 at 6:15 PM",
+          "error": null,
+          "first_scraped_at": "2026-07-20T11:59:43Z",
+          "last_scraped_at": "2026-07-20T11:59:43Z",
+          "minutes_captured": false,
+          "minutes_final": true,
+          "turf_mentioned": false
+        }
+      }
+    }
+  },
+  "schema_version": "1.0"
 }
