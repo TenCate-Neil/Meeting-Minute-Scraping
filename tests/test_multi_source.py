@@ -21,6 +21,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
+import enrich_org_directory as enrich  # noqa: E402
 import export_leads  # noqa: E402
 import fetch_org_directory as dir_tool  # noqa: E402
 import run_all_districts  # noqa: E402
@@ -195,6 +196,47 @@ class RunAllDistrictsTest(unittest.TestCase):
             self.assertTrue((out / "boardbook_795.json").exists())
             # Idempotent: nothing left to migrate on a second call.
             run_all_districts.migrate_legacy_output(out, "boardbook", "795", "boardbook_795")
+
+
+class BoardDocsHeaderParseTest(unittest.TestCase):
+    """BoardDocs exposes the district name + street address only in its page
+    header (#SiteTitle1/#SiteTitle2) - and a large minority of sites swap the
+    two slots, so the parser classifies each line by content."""
+
+    def test_normal_slot_order(self):
+        html = ('<div id="SiteTitle1">90 N. East Street | Pickerington OH 43147 | (614) 833-2110</div>'
+                '<div id="SiteTitle2">Pickerington Local School District</div>')
+        self.assertEqual(
+            enrich.parse_boarddocs_header(html),
+            ("Pickerington Local School District",
+             "90 N. East Street, Pickerington OH 43147"),
+        )
+
+    def test_swapped_slots_are_detected(self):
+        html = ('<div id="SiteTitle1">Wilson County Schools</div>'
+                '<div id="SiteTitle2">415 Harding Drive, Lebanon, TN 37087 | 615-444-3282</div>')
+        self.assertEqual(
+            enrich.parse_boarddocs_header(html),
+            ("Wilson County Schools", "415 Harding Drive, Lebanon, TN 37087"),
+        )
+
+    def test_bullet_separators_and_phone_parts_dropped(self):
+        html = ('<div id="SiteTitle1">2010 N. 59th St. • Kansas City, KS 66104 • (913) 551-3200</div>'
+                '<div id="SiteTitle2">Kansas City, Kansas Public Schools</div>')
+        name, address = enrich.parse_boarddocs_header(html)
+        self.assertEqual(address, "2010 N. 59th St., Kansas City, KS 66104")
+
+    def test_names_with_numbers_are_not_addresses(self):
+        # District names can end in a number; that alone must not classify
+        # them as addresses (a ZIP, phone, or leading street number does).
+        for name in ("Olathe Public School District 233", "USD 210 Board of Education"):
+            self.assertFalse(enrich._looks_like_address(name))
+        for addr in ("625 S MILL ROAD, LEON, KS 67074 | 316-742-3261",
+                     "9353 Flush Rd. St. George, KS  66535"):
+            self.assertTrue(enrich._looks_like_address(addr))
+
+    def test_missing_lines_yield_blanks(self):
+        self.assertEqual(enrich.parse_boarddocs_header("<div></div>"), ("", ""))
 
 
 class ExportIdentityTest(unittest.TestCase):

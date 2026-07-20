@@ -95,29 +95,53 @@ def fetch_first_address(session: requests.Session, org_id: str,
     return urllib.parse.unquote_plus(m.group(1))
 
 
-def fetch_boarddocs_header(session: requests.Session, org_ref: str) -> tuple:
+# What makes a BoardDocs header line an address rather than a name: a ZIP, a
+# phone number, or a leading street number. District names occasionally end in
+# a number ("Olathe Public School District 233") but match none of these.
+_ZIP_RE = re.compile(r"\b\d{5}(?:-\d{4})?\b")
+_PHONE_RE = re.compile(r"\(?\d{3}\)?[\s.\-/]\s?\d{3}[\s.\-]\d{4}")
+_STREET_START_RE = re.compile(r"^\d+\s+\S")
+
+
+def _looks_like_address(text: str) -> bool:
+    return bool(_ZIP_RE.search(text) or _PHONE_RE.search(text)
+                or _STREET_START_RE.match(text))
+
+
+def parse_boarddocs_header(html: str) -> tuple:
     """(org_name, address) from a BoardDocs client's public page header.
 
-    The header renders the street address in #SiteTitle1 as
-    "90 N. East Street | Pickerington OH 43147 | (614) 833-2110" and the
+    The header has two lines: usually the street address in #SiteTitle1
+    ("90 N. East Street | Pickerington OH 43147 | (614) 833-2110") and the
     district's display name in #SiteTitle2 ("Pickerington Local School
-    District"). Either may be missing on sparsely configured sites.
+    District") - but a large minority of sites SWAP the two, so each line is
+    classified by content instead of trusting the slot. Either may be missing
+    on sparsely configured sites.
     """
+    soup = BeautifulSoup(html, "lxml")
+    lines = []
+    for selector in ("#SiteTitle1", "#SiteTitle2"):
+        el = soup.select_one(selector)
+        lines.append(el.get_text(" ", strip=True) if el else "")
+
+    name = next((t for t in reversed(lines) if t and not _looks_like_address(t)), "")
+    raw_address = next((t for t in lines if t and _looks_like_address(t)), "")
+    address = ""
+    if raw_address:
+        # street | City ST ZIP | phone [| fax] -> "street, City ST ZIP"
+        # (separator is "|" or a bullet; phone/fax parts carry no real words)
+        parts = [p.strip() for p in re.split(r"[|•]", raw_address)]
+        keep = [p for p in parts if len(re.sub(r"[^A-Za-z]", "", p)) >= 3][:2]
+        address = ", ".join(keep) if keep else raw_address
+    return name, address
+
+
+def fetch_boarddocs_header(session: requests.Session, org_ref: str) -> tuple:
     adapter = get_adapter("boarddocs")
     resp = session.get(f"{adapter.org_page_url(org_ref)}", timeout=60,
                        headers={"User-Agent": adapter.user_agent})
     resp.raise_for_status()
-    soup = BeautifulSoup(resp.text, "lxml")
-    name_el = soup.select_one("#SiteTitle2")
-    addr_el = soup.select_one("#SiteTitle1")
-    name = name_el.get_text(" ", strip=True) if name_el else ""
-    address = ""
-    if addr_el:
-        # street | City ST ZIP | phone [| fax] -> "street, City ST ZIP"
-        parts = [p.strip() for p in addr_el.get_text(" ", strip=True).split("|")]
-        keep = [p for p in parts[:2] if p and not p.startswith("(")]
-        address = ", ".join(keep)
-    return name, address
+    return parse_boarddocs_header(resp.text)
 
 
 def parse_state(address: str) -> str | None:

@@ -136,8 +136,12 @@ hidden orgs by page title.
 
 ## Deriving state and county
 
-BoardBook has no state/county field anywhere in the directory or org APIs.
-`scripts/enrich_org_directory.py` derives both, per org:
+No platform exposes a state/county field in its directory or org APIs.
+`scripts/enrich_org_directory.py` derives both, per org (the process below
+was built on BoardBook and now covers the whole family the same way; for
+BoardDocs the address AND the display name come from the client site's
+header - `#SiteTitle1` / `#SiteTitle2` on the public page - since BoardDocs
+has no directory to take names from):
 
 1. Fetch `/Public/Organization/{orgId}` and take the first
    `maps.google.com/?q=<address>` link on the page - this is the physical
