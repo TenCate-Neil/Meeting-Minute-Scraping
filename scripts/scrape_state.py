@@ -7,12 +7,16 @@ This concerns the meeting-minutes scraping only; the web-search agent
 pipeline keeps its own re-run bookkeeping in its own repo.
 
 The state lives in state/scrape_state.json (tracked in git, unlike output/),
-keyed org_id -> meeting_id:
+keyed "{platform}:{org_id}" -> meeting_id. The platform namespace exists
+because meeting ids from different platforms can collide numerically; a bare
+org id is ambiguous once more than one platform is scraped. Legacy files
+(schema 1.0, bare BoardBook org ids) are migrated in place on load - see
+migrate_legacy_org_keys().
 
     {
-      "schema_version": "1.0",
+      "schema_version": "2.0",
       "orgs": {
-        "795": {
+        "boardbook:795": {
           "last_scraped_at": "2026-07-20T12:00:00Z",
           "meetings": {
             "725242": {
@@ -45,7 +49,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Tuple
 
-STATE_SCHEMA_VERSION = "1.0"
+STATE_SCHEMA_VERSION = "2.0"
+
+# Platform assumed for org keys written before the multi-platform change
+# (schema 1.0 kept bare BoardBook org ids like "795").
+LEGACY_PLATFORM = "boardbook"
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_STATE_FILE = REPO_ROOT / "state" / "scrape_state.json"
@@ -79,6 +87,42 @@ def parse_meeting_date(date_str: str) -> Optional[datetime]:
     return None
 
 
+# --- platform-namespaced org keys ---------------------------------------------
+
+def org_key(platform: str, org_id: str) -> str:
+    """The state key for one org on one platform, e.g. 'boardbook:795',
+    'sparq:120', 'boarddocs:ny/albany'. Meeting ids are only unique within a
+    platform, so every org-level key carries the platform namespace."""
+    return f"{platform}:{org_id}"
+
+
+def migrate_legacy_org_keys(state: dict) -> bool:
+    """One-time, in-place migration of pre-multi-platform state files.
+
+    Schema 1.0 keyed orgs by bare BoardBook org id ("795"); schema 2.0 keys
+    them "{platform}:{org_id}". Every existing key without a namespace was
+    written by the BoardBook-only scraper, so it becomes "boardbook:<key>",
+    keeping all recorded meetings. Returns True when anything was migrated.
+    Idempotent: already-namespaced keys are left alone.
+    """
+    orgs = state.get("orgs", {})
+    legacy_keys = [k for k in list(orgs) if ":" not in k]
+    for key in legacy_keys:
+        new_key = org_key(LEGACY_PLATFORM, key)
+        entry = orgs.pop(key)
+        if new_key in orgs:
+            # Should not happen in practice (a file is either legacy or
+            # migrated); if both exist, keep the namespaced entry's meetings
+            # and only add the legacy ones it does not know.
+            merged = entry.get("meetings", {})
+            merged.update(orgs[new_key].get("meetings", {}))
+            orgs[new_key]["meetings"] = merged
+        else:
+            orgs[new_key] = entry
+    state["schema_version"] = STATE_SCHEMA_VERSION
+    return bool(legacy_keys)
+
+
 # --- load / save -------------------------------------------------------------
 
 def load_state(path: Path) -> dict:
@@ -87,6 +131,7 @@ def load_state(path: Path) -> dict:
             state = json.load(f)
         state.setdefault("schema_version", STATE_SCHEMA_VERSION)
         state.setdefault("orgs", {})
+        migrate_legacy_org_keys(state)
         return state
     return {"schema_version": STATE_SCHEMA_VERSION, "orgs": {}}
 

@@ -97,84 +97,88 @@ class ShouldProcessTest(unittest.TestCase):
 
 
 class RecordResultTest(unittest.TestCase):
+    # Org keys are platform-namespaced since schema 2.0 (see scrape_state.org_key);
+    # the state functions treat them as opaque strings.
+    ORG = "boardbook:795"
+
     def fresh_state(self):
-        return {"schema_version": "1.0", "orgs": {}}
+        return {"schema_version": "2.0", "orgs": {}}
 
     def test_clean_non_hit_is_final(self):
         state = self.fresh_state()
-        scrape_state.record_result(state, "795", "1", "July 1, 2026 at 6:15 PM",
+        scrape_state.record_result(state, self.ORG, "1", "July 1, 2026 at 6:15 PM",
                                    error=None, turf_mentioned=False,
                                    minutes_captured=False, now=NOW)
-        e = scrape_state.get_entry(state, "795", "1")
+        e = scrape_state.get_entry(state, self.ORG, "1")
         self.assertTrue(e["agenda_processed"])
         self.assertTrue(e["minutes_final"])
         self.assertEqual(scrape_state.should_process(e, NOW), (False, "already_scraped"))
 
     def test_hit_without_minutes_stays_open(self):
         state = self.fresh_state()
-        scrape_state.record_result(state, "795", "2", "July 1, 2026 at 6:15 PM",
+        scrape_state.record_result(state, self.ORG, "2", "July 1, 2026 at 6:15 PM",
                                    error=None, turf_mentioned=True,
                                    minutes_captured=False, now=NOW)
-        e = scrape_state.get_entry(state, "795", "2")
+        e = scrape_state.get_entry(state, self.ORG, "2")
         self.assertFalse(e["minutes_final"])
         self.assertEqual(scrape_state.should_process(e, NOW), (True, "recheck_minutes"))
 
     def test_hit_with_minutes_is_final(self):
         state = self.fresh_state()
-        scrape_state.record_result(state, "795", "3", "July 1, 2026 at 6:15 PM",
+        scrape_state.record_result(state, self.ORG, "3", "July 1, 2026 at 6:15 PM",
                                    error=None, turf_mentioned=True,
                                    minutes_captured=True, now=NOW)
-        self.assertTrue(scrape_state.get_entry(state, "795", "3")["minutes_final"])
+        self.assertTrue(scrape_state.get_entry(state, self.ORG, "3")["minutes_final"])
 
     def test_errored_meeting_stays_retryable(self):
         state = self.fresh_state()
-        scrape_state.record_result(state, "795", "4", "July 1, 2026 at 6:15 PM",
+        scrape_state.record_result(state, self.ORG, "4", "July 1, 2026 at 6:15 PM",
                                    error="download_failed", turf_mentioned=False,
                                    minutes_captured=False, now=NOW)
-        e = scrape_state.get_entry(state, "795", "4")
+        e = scrape_state.get_entry(state, self.ORG, "4")
         self.assertFalse(e["agenda_processed"])
         self.assertEqual(scrape_state.should_process(e, NOW), (True, "retry_document"))
 
     def test_rerecording_preserves_first_scraped_at(self):
         state = self.fresh_state()
         earlier = NOW - timedelta(days=7)
-        scrape_state.record_result(state, "795", "5", "July 1, 2026 at 6:15 PM",
+        scrape_state.record_result(state, self.ORG, "5", "July 1, 2026 at 6:15 PM",
                                    error="download_failed", turf_mentioned=False,
                                    minutes_captured=False, now=earlier)
-        scrape_state.record_result(state, "795", "5", "July 1, 2026 at 6:15 PM",
+        scrape_state.record_result(state, self.ORG, "5", "July 1, 2026 at 6:15 PM",
                                    error=None, turf_mentioned=False,
                                    minutes_captured=False, now=NOW)
-        e = scrape_state.get_entry(state, "795", "5")
+        e = scrape_state.get_entry(state, self.ORG, "5")
         self.assertEqual(e["first_scraped_at"], scrape_state.iso_z(earlier))
         self.assertEqual(e["last_scraped_at"], scrape_state.iso_z(NOW))
         self.assertTrue(e["minutes_final"])
 
     def test_mark_final_stops_rechecks(self):
         state = self.fresh_state()
-        scrape_state.record_result(state, "795", "6", "July 1, 2026 at 6:15 PM",
+        scrape_state.record_result(state, self.ORG, "6", "July 1, 2026 at 6:15 PM",
                                    error="download_failed", turf_mentioned=False,
                                    minutes_captured=False, now=NOW)
-        scrape_state.mark_final(state, "795", "6", "document_overdue", NOW)
-        e = scrape_state.get_entry(state, "795", "6")
+        scrape_state.mark_final(state, self.ORG, "6", "document_overdue", NOW)
+        e = scrape_state.get_entry(state, self.ORG, "6")
         self.assertEqual(scrape_state.should_process(e, NOW), (False, "already_scraped"))
 
     def test_save_and_load_round_trip(self):
         state = self.fresh_state()
-        scrape_state.record_result(state, "795", "7", "July 1, 2026 at 6:15 PM",
+        scrape_state.record_result(state, self.ORG, "7", "July 1, 2026 at 6:15 PM",
                                    error=None, turf_mentioned=True,
                                    minutes_captured=True, now=NOW)
-        scrape_state.touch_org(state, "795", NOW)
+        scrape_state.touch_org(state, self.ORG, NOW)
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "state" / "scrape_state.json"
             scrape_state.save_state(path, state)
             loaded = scrape_state.load_state(path)
         self.assertEqual(loaded, state)
-        self.assertEqual(loaded["orgs"]["795"]["last_scraped_at"],
+        self.assertEqual(loaded["orgs"][self.ORG]["last_scraped_at"],
                          scrape_state.iso_z(NOW))
 
     def test_load_missing_file_gives_empty_state(self):
         state = scrape_state.load_state(Path("/nonexistent/scrape_state.json"))
-        self.assertEqual(state, {"schema_version": "1.0", "orgs": {}})
+        self.assertEqual(state, {"schema_version": "2.0", "orgs": {}})
 
 
 class MergeRecordsTest(unittest.TestCase):
