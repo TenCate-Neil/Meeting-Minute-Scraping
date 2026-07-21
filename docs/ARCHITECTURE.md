@@ -162,8 +162,15 @@ availability gap in the Census dataset, not a bug in the parsing.
 
 ### Closing the remaining gap
 
-After the address-scrape + geocoder pass, ~400 of 1,714 rows were still
-missing a `state` and/or `county` - mostly orgs with no posted BoardBook
+The two follow-up passes below were run on the original BoardBook-only
+directory (1,714 rows at the time); they are described here so they can be
+repeated. BoardDocs rows have since had the pass-1 enrichment (and get
+`state` from their org-ref prefix), but the Sparq and BOEconnect rows are
+still largely un-enriched - current per-platform coverage numbers live in
+docs/ROLLOUT.md step 1, not here.
+
+After the address-scrape + geocoder pass, ~400 of 1,714 BoardBook rows were
+still missing a `state` and/or `county` - mostly orgs with no posted
 meeting (nothing to scrape an address from) or addresses the Census
 geocoder's TIGER/Line coverage didn't resolve. Two further passes closed
 most of that:
