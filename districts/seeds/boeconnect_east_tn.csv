@@ -1,0 +1,15 @@
+platform,platform_org_id,state,county,include_in_rollout,notes
+boeconnect,571,TN,Hamilton County,True,East TN pilot; validated live 2026-07-20
+boeconnect,561,TN,Sullivan County,True,East TN pilot; posts agendas on-platform but minutes on district site - minutes_available=false is expected
+boeconnect,918,TN,Washington County,True,East TN pilot; validated live 2026-07-20
+boeconnect,kcs,TN,,True,Kingsport City Schools; East TN pilot; dual-hosted - also on boarddocs (tn/kingscs)
+boeconnect,556,TN,,True,Johnson City Schools; East TN pilot
+boeconnect,3345,TN,,True,Bristol TN City Schools; East TN pilot; dual-hosted - also on boarddocs (tn/brist and tn/bristoltn)
+boeconnect,559,TN,Bradley County,True,East TN pilot; validated live 2026-07-20
+boeconnect,543,TN,,True,Cleveland City Schools; East TN pilot
+boeconnect,551,TN,,True,Oak Ridge Schools; East TN pilot
+boeconnect,3244,TN,Roane County,True,East TN pilot; validated live 2026-07-20
+boeconnect,536,TN,Cumberland County,True,East TN pilot; validated live 2026-07-20
+boeconnect,540,TN,Morgan County,True,East TN pilot; validated live 2026-07-20
+boeconnect,594,TN,,True,Elizabethton City Schools; East TN pilot
+boeconnect,gcschools,TN,,True,Greeneville City Schools; East TN pilot; slug org id

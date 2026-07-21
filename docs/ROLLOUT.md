@@ -1,40 +1,75 @@
 # Rollout guide: scaling from one district to all districts
 
 This is the step-by-step procedure for taking the pipeline validated against
-a single district (Leander ISD, org 795) and running it across every school
-district listed on BoardBook.
+a single district (Leander ISD, BoardBook org 795) and running it across
+every curated district on every supported platform.
 
 ## Step 1 - Refresh the district directory
 
+`districts/district_directory.csv` is the master input: **one row per
+district-platform pair**, keyed `(platform, platform_org_id)`. It is built
+by merge-upsert from three kinds of sources - re-running any of them never
+clobbers hand-curated fields:
+
 ```bash
-python3 scripts/fetch_org_directory.py --out districts/org_directory.csv
+# live platform directories (only the BoardBook family has one)
+python3 scripts/fetch_org_directory.py --platform boardbook
+python3 scripts/fetch_org_directory.py --platform sparq
+python3 scripts/fetch_org_directory.py --platform boeconnect
+
+# research-validated seed rows (BoardDocs slug lists, hidden BoardBook orgs,
+# East-TN/NE curation, deferred platforms) - already merged, re-run if edited
+python3 scripts/fetch_org_directory.py --seed districts/seeds/boarddocs.csv
+python3 scripts/fetch_org_directory.py --seed districts/seeds/boeconnect_east_tn.csv
+
+# one-time migration of the legacy BoardBook-only directory (already done;
+# districts/org_directory.csv stays in the repo as the pre-migration reference)
+python3 scripts/fetch_org_directory.py --migrate-legacy districts/org_directory.csv
 ```
 
-This scrapes the ~1,700 organizations listed at
-`https://meetings.boardbook.org/Public` and writes
-`districts/org_directory.csv` with columns:
+Columns:
 
 | column | meaning |
 |---|---|
-| `org_id` | BoardBook's numeric organization ID |
-| `org_name` | Display name as listed on BoardBook |
 | `organization_id` | Shared lead-platform slug for this org, **agent-leading** (e.g. `leander-isd-tx`). Filled from the web-search/agent side so both pipelines emit the same key; blank until an org is reconciled. Used by `scripts/export_leads.py`. |
-| `likely_school_district` | Name-pattern heuristic (`ISD`, `CISD`, `school district`, `academy`, `charter`, `ESD`, `RESA`) |
-| `include_in_rollout` | Defaults to the heuristic; **edit this column by hand** |
-| `state` | 2-letter USPS abbreviation (or `DC`) |
-| `county` | County name, or the correct local equivalent (Alaska borough/census area, etc.) |
-| `notes` | Why a row is blank/excluded, when it is - see below |
+| `org_name` | Display name (from the platform directory where one exists; BoardDocs names are filled by enrichment) |
+| `state` | 2-letter USPS abbreviation (BoardDocs rows derive it from the `{state}/` org-ref prefix) |
+| `county` | County name with the ` County` suffix (the export strips it), or the correct local equivalent |
+| `counties`, `place` | Optional geography extras (multi-county districts, city anchors) per docs/SCHEMA_ALIGNMENT_PLAN.md |
+| `platform` | `boardbook` / `sparq` / `boeconnect` / `boarddocs` / `agendaquick` / `diligent-community` / `apptegy` |
+| `platform_org_id` | Platform-scoped org id: numeric or slug for the BoardBook family, `state/slug` for BoardDocs |
+| `likely_school_district` | Name-pattern heuristic (`ISD`, `USD`, `school district`, `academy`, ...) |
+| `include_in_rollout` | Defaults to the heuristic (or the seed's explicit value); **edit this column by hand** |
+| `notes` | Why a row is blank/excluded, dual-hosting hints, validation provenance |
 
-`state`/`county` are not filled in by this step. Populating them was a
+Dual-hosted districts (e.g. Kingsport TN on both BOEconnect and BoardDocs,
+Blue Valley KS mid-migration) intentionally have one row per platform; the
+lead layer collapses them because the same org + project produces the same
+`external_id`. Same-name traps exist across states (a "Haywood County" on
+BOEconnect is TN, not NC) - the `state` column is authoritative, never match
+orgs by name alone.
+
+Two platform-specific gaps to know about:
+
+- **BoardDocs has no public client directory.** Its rows come from
+  `districts/seeds/boarddocs.csv` (validated slug lists for OH/NY/KS/NC/TN);
+  names/counties are filled by enrichment (below).
+- **BoardBook hides some live orgs from its directory** (36 known Kansas
+  districts). Known ids are seeded; to find more, sweep the id space:
+  `python3 scripts/probe_boardbook_orgs.py --range 1 4000 --title-contains USD --state KS`.
+
+`state`/`county` gaps (and BoardDocs `org_name` gaps) are filled by a
 three-pass process, in increasing order of manual cost - re-run in this
 order if the directory is ever refreshed from scratch:
 
-1. `python3 scripts/enrich_org_directory.py --csv districts/org_directory.csv`
-   - scrapes each org's BoardBook page for its posted meeting address, then
-     geocodes it via the Census Bureau's free public geocoder. Two HTTP
-     requests per org, ~20-30 minutes for the full directory. Saves every 25
+1. `python3 scripts/enrich_org_directory.py --csv districts/district_directory.csv`
+   - scrapes each org's platform page for its posted address (BoardBook
+     family: the meeting-location maps link; BoardDocs: the site header,
+     which also supplies the district name), then geocodes it via the Census
+     Bureau's free public geocoder. Two HTTP requests per org. Saves every 25
      rows and skips rows that already have a `state` unless you pass
-     `--force`, so it's safe to interrupt and resume.
+     `--force`, so it's safe to interrupt and resume. `--platform boarddocs`
+     restricts a pass to one platform.
 2. Match remaining blanks by name against the NCES Common Core of Data
    school-district directory (a free, no-key API at
    `educationdata.urban.org` - see `docs/ARCHITECTURE.md`). Exact matches
@@ -66,7 +101,7 @@ None of these are guesses - if a row is blank, it's blank on purpose, and
 
 ## Step 2 - Curate the district list (human step, don't skip)
 
-Open `districts/org_directory.csv` and review `include_in_rollout`:
+Open `districts/district_directory.csv` and review `include_in_rollout`:
 
 - The heuristic catches ~1,480 of ~1,700 orgs. It over- and under-matches at
   the edges - e.g. regional education service agencies (`ESD`, `RESA`)
@@ -85,12 +120,14 @@ per-district cap:
 
 ```bash
 python3 scripts/run_all_districts.py \
-  --districts-csv districts/org_directory.csv \
   --district-limit 5 \
   --limit-per-district 3 \
   --out-dir output/districts_smoketest \
   --summary-out output/rollout_summary_smoketest.json
 ```
+
+To smoke-test one platform at a time, add e.g. `--platforms sparq` or
+`--platforms boarddocs,boeconnect`.
 
 Check `output/rollout_summary_smoketest.json` - `status` should be `"ok"`
 for every district (a `"failed"` status means the district's org ID is
@@ -106,9 +143,7 @@ scope to a rolling window relevant to procurement/budget cycles, e.g. the
 last 3 years:
 
 ```bash
-python3 scripts/run_all_districts.py \
-  --districts-csv districts/org_directory.csv \
-  --start-date 2023-01-01
+python3 scripts/run_all_districts.py --start-date 2023-01-01
 ```
 
 Widen the window later for specific districts once you've found evidence of
@@ -118,7 +153,6 @@ turf activity and want the full history.
 
 ```bash
 python3 scripts/run_all_districts.py \
-  --districts-csv districts/org_directory.csv \
   --start-date 2023-01-01 \
   --out-dir output/districts \
   --summary-out output/rollout_summary.json \
@@ -126,11 +160,15 @@ python3 scripts/run_all_districts.py \
 ```
 
 - `--sleep` adds a politeness delay between requests within each district;
-  raise it if BoardBook starts rate-limiting (watch for HTTP 429/503 in
-  stderr).
+  raise it if a platform starts rate-limiting (watch for HTTP 429/503 in
+  stderr). BoardDocs additionally enforces its own 1s-per-request minimum
+  inside the adapter regardless of `--sleep`.
+- Rows on platforms whose adapter is deferred (agendaquick,
+  diligent-community, apptegy) are reported as `skipped_platform_deferred`
+  in the summary - expected, not a failure.
 - This will take a long time for the full list run sequentially - there is
   no built-in parallelism. If turnaround matters, shard
-  `districts/org_directory.csv` into N files and run N instances of
+  `districts/district_directory.csv` into N files and run N instances of
   `run_all_districts.py` in parallel, each against its own shard and its own
   `--out-dir`.
 
@@ -146,7 +184,8 @@ for d in sorted(hits, key=lambda x: -x['turf_hits']):
 "
 ```
 
-For each district with hits, open `output/districts/org_{id}.json`. Each
+For each district with hits, open `output/districts/{platform}_{org}.json`
+(legacy `org_{id}.json` files are renamed to the new scheme on first touch). Each
 match already carries a heuristic `topic_type`, `sentiment`, and `outcome`
 (and each document a `summary`) per `instructions/analysis_instructions.md`,
 computed by keyword matching - fine for a first sort, but re-read the quoted
@@ -156,8 +195,8 @@ final, especially for anything you'd cite externally.
 ## Handling failures and gaps
 
 - **`status: "failed"` in the rollout summary** - the org ID may be wrong,
-  or BoardBook changed something. Re-run `scrape_boardbook.py --org <id>
-  --meeting-id <one_id>` directly to see the raw error.
+  or the platform changed something. Re-run `scrape_meetings.py --platform
+  <p> --org <id> --meeting-id <one_id>` directly to see the raw error.
 - **`error: "download_failed"` on individual meetings** - normal; that
   meeting had no agenda/minutes document posted. No action needed.
 - **Zero matches across an entire district with many meetings** - plausible

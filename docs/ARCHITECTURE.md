@@ -1,14 +1,70 @@
-# Architecture: How the scraper talks to BoardBook
+# Architecture: How the scraper talks to the source platforms
 
-This documents the BoardBook endpoints the scripts depend on, so a future
-change to the site can be diagnosed quickly instead of re-discovered from
-scratch.
+This documents the endpoints the scripts depend on, per platform, so a
+future change to a site can be diagnosed quickly instead of re-discovered
+from scratch.
+
+## The platform adapter layer
+
+School boards publish meeting documents on a handful of central platforms.
+Fetching is the ONLY platform-specific part of this pipeline; everything
+after it - text extraction, turf-term matching, the minutes-outcome pass,
+scrape state, lead export, Supabase sync - is shared. The split lives in
+`scripts/platforms/`:
+
+```
+PlatformAdapter (scripts/platforms/base.py)
+    list_meetings(org_ref)                 -> [MeetingRef: id, date, name]
+    fetch_document(org_ref, meeting, kind) -> bytes | None   (kind: agenda|minutes)
+    document_page_url / org_page_url       -> human-facing deep links
+```
+
+Adding a platform = one adapter subclass + a registry entry in
+`scripts/platforms/__init__.py` + directory rows. Nothing in
+analysis/export/sync changes.
+
+| platform | adapter | org ref | documents |
+|---|---|---|---|
+| `boardbook` (meetings.boardbook.org) | `BoardBookFamilyAdapter` | numeric id or slug (`795`, `kcs`) | PDF |
+| `sparq` (meeting.sparqdata.com, NE) | same, different base URL | numeric id or slug | PDF |
+| `boeconnect` (meeting.boeconnect.net, TN) | same, different base URL | numeric id or slug | PDF |
+| `boarddocs` (go.boarddocs.com) | `BoardDocsAdapter` | `{state}/{slug}` (`ny/albany`) | HTML |
+| `agendaquick`, `diligent-community`, `apptegy` | **deferred** (directory rows may exist; the rollout reports and skips them) | | |
+
+Documents are content-sniffed by the shared extractor
+(`scrape_meetings.extract_text`): `%PDF` magic -> PyPDF2 per page, markup ->
+one HTML text pass. Meeting ids are only unique within a platform, so all
+scrape-state keys are namespaced `{platform}:{org_id}`
+(`scripts/scrape_state.py`; legacy bare-id state files migrate in place on
+load).
+
+## The BoardBook family (boardbook / sparq / boeconnect)
+
+BoardBook Premier, Sparq Meetings (NASB's eMeeting for Nebraska - ~70% of NE
+districts) and BOEconnect (owned by TSBA; 40 Tennessee systems) are the same
+white-labeled product on three domains, verified live 2026-07-20: identical
+routes, identical HTML, one adapter parameterized by base URL. (Legacy
+domain `meeting.assemblemeetings.com` serves the same app as
+`meeting.sparqdata.com`; the canonical domain per platform is preferred.)
+Everything below applies to all three; examples use BoardBook.
+
+Two family-wide quirks the adapter handles:
+
+- **Sparq spells the PDF content type `application/PDF`** (uppercase), so
+  the content-type check is case-insensitive.
+- **A meeting row may expose `Agenda`, `Minutes` and/or `PublicNotice` links
+  in any combination.** Some orgs post only public notices (e.g.
+  Papillion-La Vista on Sparq) or minutes without agendas. Discovery accepts
+  any of the three link kinds; a meeting without an agenda PDF then follows
+  the normal `download_failed`/retry path rather than being invisible.
 
 ## Site structure
 
 BoardBook (`meetings.boardbook.org`) hosts board/committee meeting agendas
 for ~1,700 organizations - mostly school districts, but also libraries,
-colleges, and county-level bodies. Each organization has a numeric ID.
+colleges, and county-level bodies. Each organization has an ID - numeric on
+BoardBook itself, but numeric OR slug (`kcs`, `papillion-lavista`) across
+the family, so org ids are treated as opaque strings everywhere.
 
 ```
 https://meetings.boardbook.org/Public
@@ -60,19 +116,32 @@ fetch documents.
   `meeting=<id>` query parameter used everywhere else.
 
 This structure was confirmed by inspecting the live HTML for org 795
-(Leander ISD) - see `scripts/scrape_boardbook.py::fetch_meeting_list`.
+(Leander ISD), and re-confirmed on Sparq org 120 (Omaha) and BOEconnect org
+`kcs` (Kingsport) - see
+`scripts/platforms/boardbook_family.py::BoardBookFamilyAdapter._parse_meeting_rows`.
 
 ## Parsing the organization directory
 
 `/Public` renders every organization as `a[href*="/Public/Organization/"]`
 with the org name as the link text, inside a flat `<ul class="list-unstyled">`
-- no pagination, no search API needed. `scripts/fetch_org_directory.py`
-scrapes this once to produce `districts/org_directory.csv`.
+- no pagination, no search API needed, same markup on all three family
+domains (302 orgs on Sparq, 47 on BOEconnect). `scripts/fetch_org_directory.py`
+merges these into `districts/district_directory.csv`; see docs/ROLLOUT.md.
+
+One BoardBook-specific gap: at least 36 Kansas districts are live on
+BoardBook but **absent from the public directory** (org page responds, no
+directory link). Their rows come from `districts/seeds/` instead, and
+`scripts/probe_boardbook_orgs.py` can sweep the org-id space to find such
+hidden orgs by page title.
 
 ## Deriving state and county
 
-BoardBook has no state/county field anywhere in the directory or org APIs.
-`scripts/enrich_org_directory.py` derives both, per org:
+No platform exposes a state/county field in its directory or org APIs.
+`scripts/enrich_org_directory.py` derives both, per org (the process below
+was built on BoardBook and now covers the whole family the same way; for
+BoardDocs the address AND the display name come from the client site's
+header - `#SiteTitle1` / `#SiteTitle2` on the public page - since BoardDocs
+has no directory to take names from):
 
 1. Fetch `/Public/Organization/{orgId}` and take the first
    `maps.google.com/?q=<address>` link on the page - this is the physical
@@ -133,8 +202,8 @@ concept for DC, etc.) - see `docs/ROLLOUT.md` for the full breakdown.
 `Content-Type: application/pdf` directly (no redirect, no session cookie
 needed) for meetings with a posted agenda/minutes packet. If no document was
 ever posted for that meeting, the endpoint 302-redirects back to the org's
-meeting-list page instead of returning a PDF - `scrape_boardbook.py` treats
-any non-PDF response as `error: "download_failed"`.
+meeting-list page instead of returning a PDF - the adapter returns None and
+`scrape_meetings.py` records `error: "download_failed"`.
 
 Text is extracted per-page with `PyPDF2.PdfReader`. Packets range from a few
 pages to 200+ (they often bundle every backup document for every agenda item
@@ -143,10 +212,10 @@ memory bounded and lets future work cite a specific page number per match.
 
 ## Turf-term matching
 
-A single compiled regex (`TURF_PATTERN` in `scrape_boardbook.py`, mirrored in
+A single compiled regex (`TURF_PATTERN` in `scrape_meetings.py`, mirrored in
 `instructions/analysis_instructions.md`) scans the extracted text
-case-insensitively. Each match records ~400 characters of surrounding
-context.
+case-insensitively - the same pass regardless of which platform produced the
+document. Each match records ~400 characters of surrounding context.
 
 Each match is then run through `classify_match()`, a keyword-based heuristic
 that assigns `topic_type`, `sentiment`, and `outcome` per the categories
@@ -202,9 +271,62 @@ dollar figures actually live. The minutes are the authority on the *decision*,
 not on the *detail* - so the two are complementary, and this pipeline uses
 each for what it is best at.
 
+## BoardDocs (go.boarddocs.com)
+
+BoardDocs (Diligent) is a different architecture: a JS single-page app over
+a Domino backend, one site per client at `go.boarddocs.com/{state}/{slug}`.
+There is **no public client directory** - district rows come from
+research-validated slug lists in `districts/seeds/boarddocs.csv` (NY, OH,
+KS, NC, TN). Two machine-readable endpoints per client, verified live
+(2026-07-20) on `ny/albany` and `oh/plsd`:
+
+```
+GET  /{state}/{slug}/Board.nsf/XML-ActiveMeetings
+     -> XML list of every public meeting (full history: 334 meetings back to
+        2015 for ny/albany, 378 for oh/plsd), with ids, dates, names, and
+        inline agenda item names.
+
+POST /{state}/{slug}/Board.nsf/BD-GetMeetingsList?open
+     form: current_committee_id={id}
+     -> JSON meeting list per committee (fallback when the XML route fails).
+        Committee ids appear in <option value="..."> tags in the public page
+        HTML (/{state}/{slug}/Board.nsf/Public).
+```
+
+Documents are fetched per meeting, as HTML (found by reading the public
+app's own JavaScript - meetings.js/agenda.js/main.js):
+
+```
+POST /{state}/{slug}/Board.nsf/PRINT-AgendaDetailed?open   form: id={meetingId}
+     -> the detailed agenda (item names + full item body text) as HTML
+POST /{state}/{slug}/Board.nsf/BD-GetMinutes?open          form: id={meetingId}
+     -> the approved minutes as HTML
+```
+
+An empty 200 body means "not posted" (verified for future meetings and for
+bogus ids) - the adapter maps it to None, which the shared pipeline already
+treats as the document-not-posted case. Item-attachment PDFs also exist
+(`/{state}/{slug}/Board.nsf/files/{fileId}/$file/{name}.pdf`, public, no
+auth) but are not needed: the detailed agenda HTML carries the item text.
+
+Three BoardDocs facts the adapter encodes:
+
+- **The XML feed is not well-formed.** Some meetings close a `<category>`
+  that was never opened; a strict XML parse dies at the first mismatch and
+  lxml's recover mode silently dropped 330 of 334 meetings in testing. The
+  adapter extracts `<meeting>...</meeting>` blocks with a regex instead
+  (100% of meetings recovered on both test orgs).
+- **A browser User-Agent is required.** The default python-requests UA gets
+  HTTP 403 from the WAF; a normal Chrome UA string is sent, plus a
+  conservative 1s minimum interval between requests.
+- **Meeting ids are Domino document ids** (`DUGMQR5C6405`), not numbers -
+  one more reason ids are opaque strings namespaced by platform.
+
 ## Why no headless browser is needed
 
-BoardBook's `/Public/...` pages are server-rendered HTML (unlike some other
-civic-agenda platforms, e.g. CivicClerk, which serve a JS single-page app and
-require either reverse-engineering a backend API or a real browser). A plain
-HTTP GET with `requests` is sufficient for every endpoint listed above.
+BoardBook-family `/Public/...` pages are server-rendered HTML, and although
+BoardDocs serves a JS single-page app, its data endpoints above return
+XML/JSON/HTML directly (unlike some other civic-agenda platforms, e.g.
+CivicClerk, which require either reverse-engineering a backend API or a real
+browser). A plain HTTP GET/POST with `requests` is sufficient for every
+endpoint listed above.

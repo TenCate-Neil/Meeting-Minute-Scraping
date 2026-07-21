@@ -2,7 +2,8 @@
 
 ## Default: don't keep the PDFs
 
-`scrape_boardbook.py` downloads each meeting's PDF into memory, extracts
+`scrape_meetings.py` downloads each meeting's document (PDF, or HTML on
+BoardDocs) into memory, extracts
 text, searches it, and lets the bytes go out of scope. Nothing is written to
 disk unless `--keep-pdfs` is passed. `run_all_districts.py` inherits the same
 default.
@@ -15,7 +16,7 @@ Rationale:
   dozens of meetings a year. Storing every packet for ~1,480 districts back
   to 2023+ would run into tens or hundreds of gigabytes for no analytical
   benefit once the text has been searched.
-- **BoardBook is the durable copy.** These are public records the district
+- **The platform is the durable copy.** These are public records the district
   is obligated to keep posted; re-downloading on demand is cheap and
   guarantees the current, authoritative version rather than a stale local
   copy that could drift from a corrected/amended posting.
@@ -30,9 +31,9 @@ Rationale:
 
 Pass `--keep-pdfs` when you want an audit trail for confirmed hits
 specifically - not for the whole corpus. `run_all_districts.py --keep-pdfs`
-saves PDFs per district under `output/districts/pdfs/{orgId}/`, but this
-should be used selectively (e.g. re-run `scrape_boardbook.py --org <id>
---meeting-id <id> --keep-pdfs` for the handful of meetings that already
+saves documents per district under `output/districts/pdfs/{platform}_{org}/`, but this
+should be used selectively (e.g. re-run `scrape_meetings.py --platform <p>
+--org <id> --meeting-id <id> --keep-pdfs` for the handful of meetings that already
 showed a match) rather than as the default rollout mode, to avoid the volume
 problem above.
 
@@ -55,7 +56,8 @@ run, like `leads/ledger.json`. The full skip/recheck rules live in
 
 ## Retention of the district directory CSV
 
-`districts/org_directory.csv`, by contrast, **is** meant to be committed. It
+`districts/district_directory.csv` (and the legacy `org_directory.csv` it
+was migrated from), by contrast, **are** meant to be committed. It
 is small (a few hundred KB for ~1,700 rows), it's the human-curated input to
 the rollout (see `docs/ROLLOUT.md` step 2), and losing the curation work
 (which orgs were manually included/excluded and why) would be more costly

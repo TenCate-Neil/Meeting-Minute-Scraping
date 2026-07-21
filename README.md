@@ -1,29 +1,42 @@
 # Trial Meeting Minute Scraping
 
-Scrapes public school board meeting agendas/minutes from
-[BoardBook](https://meetings.boardbook.org/Public) and analyzes each document
-for mentions of artificial/synthetic turf, so that discussion of turf topics
+Scrapes public school board meeting agendas/minutes from the central
+platforms districts publish on - BoardBook Premier, Sparq Meetings (NE),
+BOEconnect (TN), BoardDocs (Diligent) - and analyzes each document for
+mentions of artificial/synthetic turf, so that discussion of turf topics
 (procurement, budget, replacement, sentiment) can be tracked across many
 school districts without manually opening every agenda PDF.
 
-The process is designed to scale from **one district** to **all districts
-listed on BoardBook** (~1,700 organizations, ~1,480 of which look like school
-districts by name).
+The process is designed to scale from **one district** to **every district
+in the directory** (~2,500 district-platform rows across the pilot
+geographies: Nebraska, Kansas, Ohio, New York, East Tennessee, Western North
+Carolina, plus the original BoardBook footprint).
 
 ## How it works, in one sentence
 
-For each district: fetch its public meeting list → download each meeting's
-agenda/minutes PDF → extract text → regex-search for turf terms with
-surrounding context → write structured JSON/CSV output → discard the PDF
-unless a match was found.
+For each district: fetch its public meeting list from its platform → download
+each meeting's agenda/minutes document → extract text (PDF or HTML) →
+regex-search for turf terms with surrounding context → write structured
+JSON/CSV output → discard the document unless a match was found.
+
+Only the *fetching* is platform-specific (see `scripts/platforms/`); the
+analysis, scrape state, lead export and Supabase sync are one shared,
+platform-agnostic pipeline. Adding a platform means one adapter class plus
+directory rows - nothing downstream changes.
 
 ## Repository layout
 
 ```
 scripts/
-  fetch_org_directory.py   Scrape the BoardBook org directory into a CSV you curate
-  scrape_boardbook.py      Scrape + analyze one district (one BoardBook org ID)
-  run_all_districts.py     Orchestrate scrape_boardbook.py across a curated district list
+  platforms/               Platform adapters: the ONLY platform-specific code
+    boardbook_family.py    BoardBook / Sparq / BOEconnect (one product, 3 domains)
+    boarddocs.py           BoardDocs (different architecture; HTML documents)
+  scrape_meetings.py       Scrape + analyze one district on any platform
+  scrape_boardbook.py      Back-compat wrapper (BoardBook is the default platform)
+  run_all_districts.py     Orchestrate scrape_meetings.py across the curated directory
+  fetch_org_directory.py   Build/refresh districts/district_directory.csv (merge-upsert)
+  enrich_org_directory.py  Fill org_name/state/county gaps from platform pages + geocoder
+  probe_boardbook_orgs.py  Find BoardBook-family orgs hidden from the public directory
   export_leads.py          Convert turf-hit documents into the shared core-lead shape
   scrape_state.py          Document-level scrape state: skip/recheck decisions for re-runs
 instructions/
@@ -31,15 +44,17 @@ instructions/
 contracts/
   lead.schema.json         Shared lead contract (v2.0), copied from the web-search repo
 docs/
-  ARCHITECTURE.md          How the BoardBook site works and how the scraper talks to it
+  ARCHITECTURE.md          Platform endpoints + how the adapter layer is organized
   ROLLOUT.md               Step-by-step guide to running this across many districts
   DATA_STORAGE.md          What gets kept, what gets discarded, and why
 districts/
-  org_directory.csv        Master list of BoardBook orgs (generated, then human-curated)
+  district_directory.csv   Master list, ONE ROW PER DISTRICT-PLATFORM PAIR (curated)
+  seeds/                   Research-validated seed rows merged into the directory
+  org_directory.csv        Legacy BoardBook-only list (kept as reference; migrated)
 leads/
   ledger.json              Every lead ever exported, keyed by external_id (tracked)
 state/
-  scrape_state.json        What was scraped when, per org/meeting (tracked)
+  scrape_state.json        What was scraped when, per platform:org/meeting (tracked)
 exports/                   Per-run export snapshots (generated) - gitignored
 output/                    Script output (JSON/CSV results, optionally PDFs) - gitignored
 ```
@@ -49,31 +64,57 @@ output/                    Script output (JSON/CSV results, optionally PDFs) - g
 ```bash
 pip install requests beautifulsoup4 lxml PyPDF2 jsonschema
 
-# 1. One district, quick test (uses a known BoardBook org ID)
-python3 scripts/scrape_boardbook.py --org 795 --limit 5
+# 1. One district, quick test (BoardBook is the default platform)
+python3 scripts/scrape_meetings.py --org 795 --limit 5
 
-# 2. Build/refresh the master district list
-python3 scripts/fetch_org_directory.py --out districts/org_directory.csv
-# -> open districts/org_directory.csv and review the include_in_rollout column
+# ... and the same pipeline on the other platforms:
+python3 scripts/scrape_meetings.py --platform sparq --org 120 --limit 5        # Omaha PS
+python3 scripts/scrape_meetings.py --platform boeconnect --org kcs --limit 5   # Kingsport
+python3 scripts/scrape_meetings.py --platform boarddocs --org ny/albany --limit 5
 
-# 3. Roll out across every included district
-python3 scripts/run_all_districts.py --districts-csv districts/org_directory.csv
+# 2. Refresh the master district directory (merge-upsert; curation survives)
+python3 scripts/fetch_org_directory.py --platform boardbook
+python3 scripts/fetch_org_directory.py --platform sparq
+python3 scripts/fetch_org_directory.py --platform boeconnect
+# -> review the include_in_rollout column in districts/district_directory.csv
+
+# 3. Roll out across every included district, all platforms
+python3 scripts/run_all_districts.py
 
 # 4. (Optional) also export turf hits to the shared lead shape in one go
-python3 scripts/run_all_districts.py --districts-csv districts/org_directory.csv --export-leads
+python3 scripts/run_all_districts.py --export-leads
 ```
 
 See [docs/ROLLOUT.md](docs/ROLLOUT.md) for the full rollout procedure,
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the BoardBook endpoints
-were reverse-engineered, and [docs/DATA_STORAGE.md](docs/DATA_STORAGE.md) for
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the per-platform endpoints
+and the adapter layer, and [docs/DATA_STORAGE.md](docs/DATA_STORAGE.md) for
 the document retention policy.
+
+## Source platforms
+
+| platform | hosts | org id form | documents |
+|---|---|---|---|
+| `boardbook` | meetings.boardbook.org (~1,700 orgs) | numeric or slug (`795`) | PDF |
+| `sparq` | meeting.sparqdata.com (302 orgs, ~70% of NE districts) | numeric or slug (`120`, `almaschools`) | PDF |
+| `boeconnect` | meeting.boeconnect.net (47 orgs, 40 TN systems) | numeric or slug (`571`, `kcs`) | PDF |
+| `boarddocs` | go.boarddocs.com (per-client sites; no public directory) | `state/slug` (`ny/albany`) | HTML |
+| `agendaquick`, `diligent-community`, `apptegy` | deferred - directory rows exist, adapters do not yet | | |
+
+BoardBook, Sparq and BOEconnect are the same white-labeled product, so one
+adapter serves all three. A district can be listed on several platforms
+(dual-hosting is real - e.g. Kingsport TN posts on BOEconnect *and*
+BoardDocs); the directory keeps one row per district-platform pair, and the
+lead layer deduplicates naturally because the same organization + project
+yields the same `external_id` regardless of source platform.
 
 ## What "org 795" was
 
 `795` is the BoardBook organization ID for **Leander ISD**, used as the pilot
-district while building this pipeline. Every district on BoardBook has its
-own numeric org ID, visible in the URL when you open its page from
-https://meetings.boardbook.org/Public (e.g. `/Public/Organization/795`).
+district while building this pipeline (and still the regression baseline).
+Org ids are platform-scoped strings: numeric or slug for the BoardBook
+family, `state/slug` for BoardDocs - visible in the URL of the org's public
+page (e.g. `/Public/Organization/795`, `/Public/Organization/kcs`,
+`go.boarddocs.com/ny/albany/...`).
 
 ## Output format
 
@@ -101,9 +142,12 @@ minutes") for the rationale and the agenda-vs-minutes trade-off.
 ### Incremental re-runs (no double scraping)
 
 Re-running the scraper does not re-download documents it already captured.
-`state/scrape_state.json` (tracked in git, unlike `output/`) records, per org
-and meeting, when it was scraped and what was captured. On each run the
-scraper skips a meeting unless something is still missing:
+`state/scrape_state.json` (tracked in git, unlike `output/`) records, per
+org and meeting, when it was scraped and what was captured. Org keys are
+platform-namespaced (`boardbook:795`, `sparq:120`, `boarddocs:ny/albany`)
+because meeting ids are only unique within one platform; state files written
+before the multi-platform change migrate in place on first load. On each run
+the scraper skips a meeting unless something is still missing:
 
 - a meeting never seen before is processed;
 - a meeting whose PDF could not be fetched last time is **retried** (documents
@@ -134,7 +178,8 @@ step never changes the scraping/analysis logic or its output files, and it is a
 plain deterministic script — no LLM/agent calls on the meeting-minutes side.
 
 ```bash
-# A directory of org_<id>.json files (what run_all_districts.py writes):
+# A directory of per-district files (what run_all_districts.py writes -
+# {platform}_{org}.json, plus legacy org_<id>.json):
 python3 scripts/export_leads.py --input output/districts
 
 # A single results file whose name does not encode the org id:
@@ -155,8 +200,17 @@ How it behaves:
   lead rather than one-per-meeting. (Splitting a board action into per-facility
   leads — e.g. separate stadiums — needs a semantic pass and is a follow-up.)
 - Joins `org_name` / `organization_id` / `state` / `county` from
-  `districts/org_directory.csv` on the BoardBook `org_id` (the per-document JSON
-  does not carry these itself).
+  `districts/district_directory.csv` on `(platform, platform_org_id)`. Which
+  platform/org a file belongs to is read from the records themselves (the
+  scraper stamps every record); legacy `org_<id>.json` filenames map to
+  `boardbook`.
+- **Platform provenance without schema changes:** each lead's
+  `evidence.details` ends with `platform=<platform> org=<org id>` (e.g.
+  `platform=sparq org=120`), so Retool can filter the JSONB column per
+  platform. The deep links (`source_url`, `evidence.source_urls`) point at
+  the correct platform automatically because they come from the scraped
+  records. No new lead fields, no new tables; `source` stays
+  `"meeting-minutes"` — pipeline-level provenance is unchanged.
 - Computes a deterministic `external_id` so the same project re-exported later
   produces the same id — Supabase upserts stay idempotent.
 - **Ledger-first:** `leads/ledger.json` holds every lead ever exported. Each
@@ -184,7 +238,7 @@ line up field-for-field with the web-search pipeline's ledger:
   chars. `project_name` feeds the hash, so it is derived from the org + scope
   (not the meeting date) to stay stable across meetings.
 - **`organization_id`** — the shared join key, **agent-leading**. It comes from
-  the `organization_id` column in `districts/org_directory.csv`, which holds the
+  the `organization_id` column in `districts/district_directory.csv`, which holds the
   id the web-search/agent side assigns (e.g. `leander-isd-tx`). `--org-registry`
   can override it as an authoritative source. Orgs with neither fall back to a
   locally-generated slug and are flagged `needs_review` for reconciliation. New

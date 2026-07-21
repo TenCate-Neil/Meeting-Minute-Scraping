@@ -153,6 +153,37 @@ and `status=New`.
 
 ## Follow-up decisions (agreed in planning, 2026-07-20)
 
+### Multi-source platforms: provenance without schema changes (implemented)
+
+The scraper now reads several source platforms (BoardBook / Sparq /
+BOEconnect / BoardDocs; see docs/ARCHITECTURE.md). None of this touches the
+shared contract:
+
+- `contracts/lead.schema.json` is byte-identical; `source` stays
+  `"meeting-minutes"` for every lead from this repo (pipeline-level
+  provenance, as before); the `external_id` recipe is untouched - which is
+  also what makes dual-hosted districts (Kingsport on BOEconnect *and*
+  BoardDocs) collapse to one lead instead of two.
+- Platform-level provenance is carried in existing structures:
+  per-document output records hold `platform` / `platform_org_id` /
+  document URLs (repo-internal, no contract), and each lead's
+  `evidence.details` ends with `platform=<p> org=<id>` - queryable in
+  Retool via the JSONB column (`evidence->>'details' LIKE '%platform=sparq%'`).
+- **No new Supabase table and no new lead column were added, on purpose.**
+  If per-platform reporting becomes a first-class Retool need, the right
+  moves are (in order): propose an optional `evidence.platform` property to
+  the agent side (schema addition on their side, adopted verbatim here), or
+  register each platform as a row in the agent-owned `source` registry
+  table (`SRC-###`) and reference it via `evidence.source_ids` - a data
+  change, not a schema change, coordinated with the agent repo. A brand-new
+  table remains unnecessary.
+- `location_id` derivation and the org-registration path (gaps 2/4 above)
+  are unchanged; new-platform districts flow through the same
+  `districts/district_directory.csv` -> registry reconciliation as
+  BoardBook districts. The directory's `organization_id` column stays the
+  shared join key across platforms - one district, one organization_id, any
+  number of platform rows.
+
 ### Organization geography: multi-county and city-based districts
 
 Use the agent's organization contract as-is instead of restructuring the

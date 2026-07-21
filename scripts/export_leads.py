@@ -11,10 +11,16 @@ line up field-for-field with the agent pipeline's ledger.
 
 What it does, per run:
   1. Read per-document analysis output (a single JSON file, or a directory of
-     org_<id>.json files as run_all_districts.py writes to output/districts/).
+     per-district files as run_all_districts.py writes to output/districts/ -
+     {platform}_{org}.json, plus legacy org_<id>.json from the BoardBook-only
+     era).
   2. Keep only documents with turf_mentioned == true.
   3. Join organization metadata (org_name, organization_id, state, county) from
-     the curated districts/org_directory.csv on the BoardBook org_id.
+     the curated districts/district_directory.csv on (platform,
+     platform_org_id). Which platform/org a file belongs to comes from the
+     records themselves (scrape_meetings.py stamps every record); the
+     org_<id>.json filename convention still works for legacy files and maps
+     to platform=boardbook.
   4. Group an org's turf hits into a PROJECT and map each project to one lead
      (see MAPPING below), then compute a deterministic external_id.
   5. Ledger-first dedup: leads/ledger.json holds every lead ever exported,
@@ -48,7 +54,10 @@ MAPPING (per project -> one core lead):
   state/county from the directory (county without the " County" suffix).
   location_id  derived "us-<state>-meeting-minutes".
   source_url   deep link to the decision meeting's minutes page, falling back to
-               its agenda page when no minutes were posted.
+               its agenda page when no minutes were posted. URLs come from the
+               per-record fields the scraper stamped (platform-correct without
+               this script knowing any platform's URL scheme); legacy records
+               without them get the BoardBook construction, as before.
   summary      one plain line (<=400): what the turf project is, sport, status.
   evidence_quote  the single best verbatim line from the minutes ("" if none).
   evidence     agent-shaped block (project_name, project_address, details,
@@ -86,7 +95,11 @@ except ImportError:  # pragma: no cover - dependency hint
 
 # --- constants -------------------------------------------------------------
 
+# Legacy URL fallback ONLY: used for records written before the multi-platform
+# change, which carry no URL fields and were all BoardBook. New records embed
+# their own platform-correct URLs, so no other platform's scheme appears here.
 BOARDBOOK_BASE = "https://meetings.boardbook.org"
+LEGACY_PLATFORM = "boardbook"       # platform of every pre-multi-platform record
 SOURCE = "meeting-minutes"          # never anything else in this repo
 LEDGER_SCHEMA_VERSION = "2.0"
 EXTERNAL_ID_LEN = 16                # web pipeline truncates the sha1 hex to 16
@@ -96,11 +109,13 @@ EVIDENCE_QUOTE_MAX = 500            # keep the verbatim quote to one readable li
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SCHEMA = REPO_ROOT / "contracts" / "lead.schema.json"
-DEFAULT_DISTRICTS = REPO_ROOT / "districts" / "org_directory.csv"
+DEFAULT_DISTRICTS = REPO_ROOT / "districts" / "district_directory.csv"
 DEFAULT_LEDGER = REPO_ROOT / "leads" / "ledger.json"
 DEFAULT_EXPORTS = REPO_ROOT / "exports"
 
-# org_<id>.json (as run_all_districts.py writes); capture the org id.
+# Legacy org_<id>.json filename convention (BoardBook-only era); capture the
+# org id. New files are {platform}_{org}.json but their identity is read from
+# the records inside, never parsed out of the filename.
 ORG_FILENAME_RE = re.compile(r"^org_([A-Za-z0-9]+)\.json$")
 
 # Decisiveness of a confirmed minutes outcome, most decisive first. Used to pick
@@ -259,18 +274,30 @@ def status_phrase(agenda_outcomes: list, minutes_outcomes: list) -> str:
 # --- loading ---------------------------------------------------------------
 
 def load_org_directory(csv_path: Path) -> dict:
-    """org_id -> {'org_name', 'organization_id', 'state', 'county'}.
+    """(platform, platform_org_id) -> {'org_name', 'organization_id', 'state',
+    'county'}.
+
+    Reads the multi-source district_directory.csv (platform +
+    platform_org_id columns). A legacy BoardBook-only CSV (bare org_id
+    column) still loads - its rows key as (LEGACY_PLATFORM, org_id) - so
+    older checkouts and the test fixtures keep working.
 
     organization_id is the agent-leading shared key filled into the directory's
     organization_id column; it is "" for orgs not yet reconciled with the agent.
     """
     directory = {}
     with csv_path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            org_id = (row.get("org_id") or "").strip()
-            if not org_id:
+        reader = csv.DictReader(f)
+        legacy = "platform" not in (reader.fieldnames or [])
+        for row in reader:
+            if legacy:
+                platform, org_id = LEGACY_PLATFORM, (row.get("org_id") or "").strip()
+            else:
+                platform = (row.get("platform") or "").strip().lower()
+                org_id = (row.get("platform_org_id") or "").strip()
+            if not platform or not org_id:
                 continue
-            directory[org_id] = {
+            directory[(platform, org_id)] = {
                 "org_name": (row.get("org_name") or "").strip(),
                 "organization_id": (row.get("organization_id") or "").strip(),
                 "state": (row.get("state") or "").strip().upper(),
@@ -310,20 +337,35 @@ def load_org_registry(path: Optional[Path]) -> Optional[dict]:
 def discover_input_files(input_path: Path) -> list:
     """Return the list of per-document JSON files to process."""
     if input_path.is_dir():
-        return sorted(input_path.glob("org_*.json"))
+        return sorted(input_path.glob("*.json"))
     return [input_path]
 
 
-def org_id_for_file(path: Path, override: Optional[str]) -> Optional[str]:
-    """Determine the BoardBook org id for a per-document file.
+def identity_for_file(path: Path, records: list,
+                      org_override: Optional[str] = None,
+                      platform_override: Optional[str] = None) -> Optional[tuple]:
+    """Determine (platform, platform_org_id) for a per-document file.
 
-    An explicit --org override wins (for files whose name doesn't encode it).
-    Otherwise parse it from the org_<id>.json filename convention.
+    Precedence:
+      1. explicit --org (with optional --platform, default boardbook) - for a
+         single file whose records/name don't encode the org;
+      2. the platform/platform_org_id fields scrape_meetings.py stamps on
+         every record (any record suffices - a file holds one org);
+      3. the legacy org_<id>.json filename convention -> BoardBook.
+    Returns None when the file's org cannot be determined (caller warns).
     """
-    if override:
-        return override.strip()
+    if org_override:
+        return ((platform_override or LEGACY_PLATFORM).strip().lower(),
+                org_override.strip())
+    for rec in records:
+        platform = (rec.get("platform") or "").strip().lower()
+        org_id = str(rec.get("platform_org_id") or "").strip()
+        if platform and org_id:
+            return (platform, org_id)
     m = ORG_FILENAME_RE.match(path.name)
-    return m.group(1) if m else None
+    if m:
+        return (LEGACY_PLATFORM, m.group(1))
+    return None
 
 
 # --- org identity resolution ----------------------------------------------
@@ -367,6 +409,34 @@ def resolve_org_identity(org_meta: dict, registry_index: Optional[dict]) -> dict
             "unreconciled": False, "oid_source": "slugify"}
 
 
+# --- document URLs -----------------------------------------------------------
+
+def record_page_url(rec: dict, org_id: str, kind: str) -> str:
+    """Human-facing deep link for a record's agenda/minutes page.
+
+    New records carry the URL the platform adapter stamped (agenda_url /
+    minutes_url) - platform-correct with no per-platform knowledge here.
+    Legacy records (BoardBook-only era) carry none, so the original BoardBook
+    construction is preserved byte-for-byte for them.
+    """
+    url = (rec.get(f"{kind}_url") or "").strip()
+    if url:
+        return url
+    route = "Agenda" if kind == "agenda" else "Minutes"
+    meeting_id = str(rec.get("meeting_id", "")).strip()
+    return f"{BOARDBOOK_BASE}/Public/{route}/{org_id}?meeting={meeting_id}"
+
+
+def org_page_url(hits: list, org_id: str) -> str:
+    """The org's public meeting-list page, from any record that carries it
+    (same legacy BoardBook fallback as record_page_url)."""
+    for rec in hits:
+        url = (rec.get("org_url") or "").strip()
+        if url:
+            return url
+    return f"{BOARDBOOK_BASE}/Public/Organization/{org_id}"
+
+
 # --- project aggregation ---------------------------------------------------
 
 def collect_hits(records: list) -> list:
@@ -406,8 +476,14 @@ def _best_document(hits: list) -> dict:
 # --- mapping ---------------------------------------------------------------
 
 def build_lead(hits: list, org_id: str, org_meta: dict, discovered_at: str,
-               run_stamp: str, registry_index: Optional[dict] = None):
+               run_stamp: str, registry_index: Optional[dict] = None,
+               platform: str = LEGACY_PLATFORM):
     """Map one project (an org's aggregated turf-hit documents) to a core lead.
+
+    org_id is the PLATFORM-SCOPED org ref (BoardBook-family id/slug, BoardDocs
+    "state/slug"); platform names its source platform. Platform provenance
+    lands in evidence.details ("platform=... org=..."), never in new schema
+    fields - the shared lead contract is unchanged.
 
     Returns (lead, ident) where lead is None if the project has no qualifying
     sport (football/soccer/baseball-softball) and so produces no lead; ident is
@@ -450,12 +526,11 @@ def build_lead(hits: list, org_id: str, org_meta: dict, discovered_at: str,
 
     # The decision meeting anchors source_url and the evidence quote.
     primary = _best_document(hits)
-    primary_id = str(primary.get("meeting_id", "")).strip()
     primary_date = clean_meeting_date(primary.get("date", ""))
     if primary.get("minutes_available"):
-        source_url = f"{BOARDBOOK_BASE}/Public/Minutes/{org_id}?meeting={primary_id}"
+        source_url = record_page_url(primary, org_id, "minutes")
     else:
-        source_url = f"{BOARDBOOK_BASE}/Public/Agenda/{org_id}?meeting={primary_id}"
+        source_url = record_page_url(primary, org_id, "agenda")
 
     # evidence_quote: the single best verbatim line -- the confirmed decision
     # context from the minutes if we have it, else the longest match context.
@@ -476,12 +551,11 @@ def build_lead(hits: list, org_id: str, org_meta: dict, discovered_at: str,
     needs_review = (state == "") or (county == "") or ident["unreconciled"] or (ident["oid_source"] == "slugify")
 
     # source_urls: org page + a deep link per hit meeting (minutes when posted).
-    source_urls = [f"{BOARDBOOK_BASE}/Public/Organization/{org_id}"]
+    source_urls = [org_page_url(hits, org_id)]
     for rec in sorted(hits, key=lambda r: str(r.get("meeting_id", ""))):
-        mid = str(rec.get("meeting_id", "")).strip()
-        source_urls.append(f"{BOARDBOOK_BASE}/Public/Agenda/{org_id}?meeting={mid}")
+        source_urls.append(record_page_url(rec, org_id, "agenda"))
         if rec.get("minutes_available"):
-            source_urls.append(f"{BOARDBOOK_BASE}/Public/Minutes/{org_id}?meeting={mid}")
+            source_urls.append(record_page_url(rec, org_id, "minutes"))
     source_urls = list(dict.fromkeys(source_urls))  # dedup, keep order
 
     # evidence.details: the fuller context, demoted from the core.
@@ -503,6 +577,13 @@ def build_lead(hits: list, org_id: str, org_meta: dict, discovered_at: str,
             if any(rec.get("minutes_available") for rec in hits) else "",
         f"Sport (heuristic, from evidence text): {sport_label}",
         "project_address not resolved from the minutes; left blank for an enrichment step.",
+        # Platform provenance, greppable in the JSONB column (e.g. Retool:
+        # evidence->>'details' LIKE '%platform=sparq%'). Kept in details on
+        # purpose: the shared lead contract gains no new field for this. If
+        # the agent side later adds an optional evidence.platform property to
+        # the contract, this moves to a clean key (see
+        # docs/SCHEMA_ALIGNMENT_PLAN.md follow-ups).
+        f"platform={platform} org={org_id}",
     ]
     if ident["unreconciled"]:
         detail_bits.append(
@@ -578,6 +659,7 @@ def run_export(
     org_override: Optional[str] = None,
     run_timestamp: Optional[str] = None,
     org_registry_path: Optional[Path] = None,
+    platform_override: Optional[str] = None,
 ) -> dict:
     """Run the export. Returns a counts dict; raises nothing for bad records
     (they are refused and reported). Writes the ledger and a run file.
@@ -604,23 +686,37 @@ def run_export(
     seen_this_run = set()
 
     for file_path in discover_input_files(input_path):
-        org_id = org_id_for_file(file_path, org_override)
-        if not org_id:
-            warnings.append(
-                f"{file_path.name}: cannot determine org id "
-                f"(not an org_<id>.json name and no --org given); skipped"
-            )
+        try:
+            records = json.loads(file_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            warnings.append(f"{file_path.name}: not valid JSON; skipped")
             continue
-        org_meta = directory.get(org_id)
-        if org_meta is None or not org_meta.get("org_name"):
-            counts["skipped_no_org"] += 1
-            warnings.append(f"{file_path.name}: org id {org_id} not in {districts_csv.name}; skipped")
+        if not isinstance(records, list):
+            warnings.append(f"{file_path.name}: not a per-document record list; skipped")
             continue
 
-        records = json.loads(file_path.read_text(encoding="utf-8"))
+        identity = identity_for_file(file_path, records, org_override, platform_override)
+        if identity is None:
+            warnings.append(
+                f"{file_path.name}: cannot determine platform/org "
+                f"(records carry no platform fields, name is not org_<id>.json, "
+                f"and no --org given); skipped"
+            )
+            continue
+        platform, org_id = identity
+        org_meta = directory.get((platform, org_id))
+        if org_meta is None or not org_meta.get("org_name"):
+            counts["skipped_no_org"] += 1
+            warnings.append(
+                f"{file_path.name}: {platform} org {org_id} not in "
+                f"{districts_csv.name} (or has no org_name); skipped"
+            )
+            continue
+
         for hits in derive_projects(collect_hits(records)):
             lead, ident = build_lead(
-                hits, org_id, org_meta, discovered_at, run_stamp, registry_index
+                hits, org_id, org_meta, discovered_at, run_stamp, registry_index,
+                platform=platform,
             )
             if lead is None:
                 counts["skipped_non_sport"] += 1
@@ -681,12 +777,19 @@ def main() -> int:
         description="Export turf-mention documents to the shared core-lead shape."
     )
     parser.add_argument("--input", required=True,
-                        help="Per-document JSON file, or a directory of org_<id>.json files")
+                        help="Per-document JSON file, or a directory of per-district "
+                             "files ({platform}_{org}.json / legacy org_<id>.json)")
     parser.add_argument("--org",
-                        help="Override the BoardBook org id (for a single file whose "
-                             "name does not encode it, e.g. output/leander_2026.json)")
+                        help="Override the platform org id (for a single file whose "
+                             "records/name do not encode it, e.g. output/leander_2026.json)")
+    parser.add_argument("--platform",
+                        help="Platform for --org (default: boardbook). Files from "
+                             "run_all_districts.py never need this - their records "
+                             "carry platform/platform_org_id themselves.")
     parser.add_argument("--districts-csv", default=str(DEFAULT_DISTRICTS),
-                        help="Curated org directory CSV (org_id -> org_name/organization_id/state/county)")
+                        help="Curated district directory CSV ((platform, platform_org_id) "
+                             "-> org_name/organization_id/state/county; the legacy "
+                             "BoardBook-only org_directory.csv format also loads)")
     parser.add_argument("--ledger", default=str(DEFAULT_LEDGER),
                         help="Ledger of every lead ever exported")
     parser.add_argument("--exports-dir", default=str(DEFAULT_EXPORTS),
@@ -712,6 +815,7 @@ def main() -> int:
         org_override=args.org,
         run_timestamp=args.run_timestamp,
         org_registry_path=Path(args.org_registry) if args.org_registry else None,
+        platform_override=args.platform,
     )
     _print_summary(counts)
     # Non-zero exit if any record was refused, so a timer/operator notices.

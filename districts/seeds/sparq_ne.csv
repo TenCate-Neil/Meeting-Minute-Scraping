@@ -1,0 +1,6 @@
+platform,platform_org_id,state,county,include_in_rollout,notes
+sparq,120,NE,Douglas County,True,Omaha Public Schools; NE pilot; validated live 2026-07-20
+sparq,89,NE,Lancaster County,True,Lincoln Public Schools; NE pilot; posts agendas on-platform but minutes on district site - minutes_available=false is expected
+sparq,93,NE,,True,Bayard Public Schools; NE pilot; validated live 2026-07-20
+sparq,almaschools,NE,,True,Alma Public Schools; NE pilot; slug org id
+sparq,papillion-lavista,NE,Sarpy County,True,Papillion La Vista Community Schools; NE pilot; posts PublicNotice links only (no agenda/minutes PDFs on platform) - download_failed is expected until they post agendas
