@@ -47,6 +47,10 @@ docs/
   ARCHITECTURE.md          Platform endpoints + how the adapter layer is organized
   ROLLOUT.md               Step-by-step guide to running this across many districts
   DATA_STORAGE.md          What gets kept, what gets discarded, and why
+  SCHEMA_ALIGNMENT_PLAN.md How leads align with the shared agent/Supabase schema
+sync/
+  push_to_supabase.py      Upsert the lead ledger into the shared Supabase table
+tests/                     Offline test suite (fixture-based, no network needed)
 districts/
   district_directory.csv   Master list, ONE ROW PER DISTRICT-PLATFORM PAIR (curated)
   seeds/                   Research-validated seed rows merged into the directory
@@ -83,6 +87,9 @@ python3 scripts/run_all_districts.py
 
 # 4. (Optional) also export turf hits to the shared lead shape in one go
 python3 scripts/run_all_districts.py --export-leads
+
+# 5. Run the offline test suite (fixture-based, no network needed)
+pip install pytest && python3 -m pytest tests -q
 ```
 
 See [docs/ROLLOUT.md](docs/ROLLOUT.md) for the full rollout procedure,
@@ -98,7 +105,7 @@ the document retention policy.
 | `sparq` | meeting.sparqdata.com (302 orgs, ~70% of NE districts) | numeric or slug (`120`, `almaschools`) | PDF |
 | `boeconnect` | meeting.boeconnect.net (47 orgs, 40 TN systems) | numeric or slug (`571`, `kcs`) | PDF |
 | `boarddocs` | go.boarddocs.com (per-client sites; no public directory) | `state/slug` (`ny/albany`) | HTML |
-| `agendaquick`, `diligent-community`, `apptegy` | deferred - directory rows exist, adapters do not yet | | |
+| `agendaquick`, `diligent-community`, `apptegy` | deferred - a few directory rows exist (none yet for apptegy), adapters do not | | |
 
 BoardBook, Sparq and BOEconnect are the same white-labeled product, so one
 adapter serves all three. A district can be listed on several platforms

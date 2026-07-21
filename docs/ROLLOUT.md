@@ -17,10 +17,12 @@ python3 scripts/fetch_org_directory.py --platform boardbook
 python3 scripts/fetch_org_directory.py --platform sparq
 python3 scripts/fetch_org_directory.py --platform boeconnect
 
-# research-validated seed rows (BoardDocs slug lists, hidden BoardBook orgs,
-# East-TN/NE curation, deferred platforms) - already merged, re-run if edited
-python3 scripts/fetch_org_directory.py --seed districts/seeds/boarddocs.csv
-python3 scripts/fetch_org_directory.py --seed districts/seeds/boeconnect_east_tn.csv
+# research-validated seed rows - already merged, re-run if edited
+python3 scripts/fetch_org_directory.py --seed districts/seeds/boarddocs.csv          # BoardDocs slug lists (OH/NY/KS/NC/TN)
+python3 scripts/fetch_org_directory.py --seed districts/seeds/boardbook_ks_hidden.csv # live BoardBook orgs hidden from its directory
+python3 scripts/fetch_org_directory.py --seed districts/seeds/sparq_ne.csv           # NE curation
+python3 scripts/fetch_org_directory.py --seed districts/seeds/boeconnect_east_tn.csv # East-TN curation
+python3 scripts/fetch_org_directory.py --seed districts/seeds/deferred_platforms.csv # deferred-platform rows (no adapter yet)
 
 # one-time migration of the legacy BoardBook-only directory (already done;
 # districts/org_directory.csv stays in the repo as the pre-migration reference)
@@ -82,8 +84,31 @@ order if the directory is ever refreshed from scratch:
    (one query per org), reserved for last because it's the only step with
    real per-row labor cost.
 
-On the full run: **99% of orgs resolved a `state`, 99% resolved a `county`**.
-Every row still blank has a reason recorded in `notes`:
+How far this has actually been run varies by platform - check live coverage
+rather than trusting a snapshot in this doc:
+
+```bash
+python3 -c "
+import csv
+from collections import Counter
+rows = list(csv.DictReader(open('districts/district_directory.csv')))
+print(len(rows), 'rows;', sum(1 for r in rows if r['state']), 'with state,',
+      sum(1 for r in rows if r['county']), 'with county')
+print('blank state by platform:', dict(Counter(r['platform'] for r in rows if not r['state'])))
+"
+```
+
+- **BoardBook rows** went through all three passes (the original full run:
+  99% resolved a `state`, 99% a `county`).
+- **BoardDocs rows** get `state` for free from the `{state}/` org-ref prefix
+  and have had the pass-1 enrichment (header address -> name + geocoded
+  county); no NCES/web-search follow-up yet, so some counties remain blank.
+- **Sparq and BOEconnect rows** are still largely un-enriched - most of the
+  directory's blank states live there. Run pass 1 with
+  `--platform sparq` / `--platform boeconnect` before curating by state.
+
+For the BoardBook rows, every row still blank after the full three-pass run
+has a reason recorded in `notes`:
 - Confirmed BoardBook demo/placeholder orgs (fictional addresses like
   "123 Yellow Brick Road, Austin, TX 12345") - not real institutions.
 - Explicit test/trial/demo entries (name contains "test", "trial", "demo",
@@ -103,14 +128,17 @@ None of these are guesses - if a row is blank, it's blank on purpose, and
 
 Open `districts/district_directory.csv` and review `include_in_rollout`:
 
-- The heuristic catches ~1,480 of ~1,700 orgs. It over- and under-matches at
-  the edges - e.g. regional education service agencies (`ESD`, `RESA`)
-  aren't single districts and may need separate handling; some districts use
-  naming conventions the regex misses (spot-check a sample).
+- The heuristic (plus seed curation) currently marks ~2,160 of ~2,530
+  district-platform rows for rollout. It over- and under-matches at the
+  edges - e.g. regional education service agencies (`ESD`, `RESA`) aren't
+  single districts and may need separate handling; some districts use naming
+  conventions the regex misses (spot-check a sample).
 - If you only care about a specific state, filter on the `state` column
-  directly (now populated for ~93% of rows) and set `include_in_rollout` to
-  `False` for everything outside scope. For the ~7% with a blank `state`,
-  cross-reference `org_name` by hand if they matter to your scope.
+  directly and set `include_in_rollout` to `False` for everything outside
+  scope. Rows with a blank `state` are mostly not-yet-enriched Sparq /
+  BOEconnect rows (see the coverage snippet in step 1) - enrich those
+  platforms first, or cross-reference `org_name` by hand if they matter to
+  your scope.
 - Commit the curated CSV so the rollout is reproducible and reviewable.
 
 ## Step 3 - Smoke-test on a handful of districts

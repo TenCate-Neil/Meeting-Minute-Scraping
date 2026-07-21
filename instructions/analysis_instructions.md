@@ -37,7 +37,12 @@ topics, and if so, summarize what was discussed and the apparent sentiment.
 5. **Decision/outcome**: was a motion made, approved, tabled, denied, or is it informational only?
 
 ## Output format
-Return a structured result per document:
+The template below describes the logical shape of a result. The scraper
+implements it as JSON - one record per document, with `turf_mentioned`,
+`matches[]` (context/topic_type/sentiment/outcome per match) and `summary`
+fields written by `scripts/scrape_meetings.py`; the text form here is
+equivalent and is what a human (or LLM) analyst should return when applying
+these instructions manually:
 
 ```
 Document: <filename or meeting date/title>
