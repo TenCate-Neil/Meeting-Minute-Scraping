@@ -316,7 +316,9 @@ class NonBoardBookLeadExportTest(unittest.TestCase):
         self.assertEqual(lead["organization"], "Omaha Public Schools")
         self.assertEqual(lead["state"], "NE")
         self.assertEqual(lead["county"], "Douglas")  # " County" suffix stripped
-        self.assertEqual(lead["location_id"], "us-ne-meeting-minutes")
+        # location_id is not emitted: geography resolves platform-side via
+        # organization_id -> organization_geography.
+        self.assertNotIn("location_id", lead)
 
     def test_urls_come_from_the_records_not_boardbook(self):
         lead = self.lead()

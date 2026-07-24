@@ -236,9 +236,10 @@ this repo is `source: "meeting-minutes"`.
 Both pipelines feed one platform (Supabase, surfaced in Retool), so leads must
 line up field-for-field with the web-search pipeline's ledger:
 
-- **Schema** — `contracts/lead.schema.json` is structurally identical to that
-  repo's copy (`additionalProperties: false`), so a lead validated here is valid
-  there. No extra/renamed fields.
+- **Schema** — `contracts/lead.schema.json` follows that repo's copy
+  (`additionalProperties: false`). Since 2026-07-24 this copy differs in one
+  place: `location_id` is optional here and no longer emitted (see below) —
+  a coordination item until the agent repo adopts the same change.
 - **`external_id`** — the **same recipe** as the web pipeline, verified
   byte-for-byte against its ledger:
   `sha1(organization | project_name | project_address)` truncated to 16 hex
@@ -253,7 +254,13 @@ line up field-for-field with the web-search pipeline's ledger:
   rather than minting a parallel scheme.
 - **`county`** — stored without the `" County"` suffix (e.g. `Williamson`) to
   match the shared convention.
-- **`location_id`** — derived `us-<state>-meeting-minutes`.
+- **`location_id`** — **not emitted.** Search areas are an agent-workflow
+  concept; this pipeline has none, so leads carry no `location_id` (the sync
+  sends the column as null). Geography resolves platform-side through
+  `organization_id` → the shared `organization` / `organization_geography`
+  tables, with the lead's own `state`/`county` columns covering orgs not yet
+  registered there. (Older ledger records may still carry the retired
+  `us-<state>-meeting-minutes` slug; it validates but is ignored.)
 
 Note on deduplication: because `external_id` is a pure function of
 `organization` + `project_name` + `project_address`, two pipelines only
@@ -265,10 +272,13 @@ leads carry the meeting date in `evidence.details` to help decide new-vs-update.
 
 ## Pushing leads to Supabase
 
-`sync/push_to_supabase.py` upserts the ledger into the shared Supabase `lead`
-table (the same table the web-search agent pipeline writes to; created by that
-repo's `sql/schema.sql`). Only the lead table is synced from here — the
-organization / search_area / source / run tables are owned by the agent repo.
+`sync/push_to_supabase.py` upserts the ledger into the shared Supabase
+`lead_entry` staging table (the same table the web-search agent pipeline
+writes to). One `lead_entry` row = one scrape. Resolving entries into the
+`lead` table (one row per resolved opportunity, with `lead_id` / `dedup_key`)
+is a separate platform job — this sync never creates or touches `lead` rows.
+The organization / search_area / source / run tables are owned by the agent
+repo.
 
 ```bash
 python3 sync/push_to_supabase.py --dry-run   # transform + print, no network
@@ -277,15 +287,28 @@ python3 sync/push_to_supabase.py             # push (needs sync/.env, see .env.e
 
 How it behaves:
 
-- **Idempotent:** upserts on `external_id`; re-running only refreshes rows.
-- **Never touches lifecycle state:** `status`, `rejected_reason` and
-  `assigned_bdm` are BDM-owned columns managed in Retool; the sync does not
-  send them, so edits there survive every re-sync.
-- **Foreign-key preflight:** `lead.organization_id` references the shared
-  `organization` table, which the agent side owns. A lead whose id is not
-  registered there yet is pushed with `organization_id` null (and a warning),
-  instead of the whole batch being rejected; the ledger keeps the local id, so
-  a re-run after the org is registered fills the column in.
+- **Idempotent:** upserts on `entry_id` (= the ledger's `external_id`, same
+  value and recipe; only the column name differs); re-running only refreshes.
+- **Never touches platform-owned columns.** The sync sends only its payload
+  columns; PostgREST merge-duplicates updates nothing else, so these survive
+  every re-sync:
+  - `review_status` / `rejected_reason` / `reviewed_by` / `reviewed_at` —
+    BDM-owned, managed in Retool (`review_status` defaults to `pending`);
+  - `lead_id` / `observation_type` / `match_confidence` — set by the
+    resolution job when it links entries to `lead` rows;
+  - `lead_value_estimation` — filled by a platform-side enrichment agent
+    that reads the summary/evidence for stated dollar amounts. Do not
+    hand-fill pipeline-owned columns (`location_id`, `bid_due_date`) in
+    Retool instead — the sync re-sends those as null.
+- **`normalized_url`** is derived from `source_url` at push time (lowercase
+  scheme/host, default port and fragment dropped, path case and query kept).
+- **Foreign-key preflight:** `lead_entry.organization_id` references the
+  shared `organization` table, which the agent side owns. A lead whose id is
+  not registered there yet is pushed with `organization_id` null (and a
+  warning), instead of the whole batch being rejected; the ledger keeps the
+  local id, so a re-run after the org is registered fills the column in.
+- Known quirk: `synced_at` is set on first insert only (database default);
+  refreshing it on re-sync would need a platform-side trigger.
 
 `.github/workflows/sync-supabase.yml` runs the same script automatically when
 `leads/ledger.json` changes on `main` (requires the `SUPABASE_URL` and

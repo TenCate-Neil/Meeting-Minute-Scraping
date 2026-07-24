@@ -81,8 +81,9 @@ class ExportLeadsTest(unittest.TestCase):
         for lead in ledger["leads"]:
             self.assertEqual(list(validator.iter_errors(lead)), [], lead["external_id"])
             self.assertEqual(lead["source"], "meeting-minutes")
-            # location_id is derived from the org's state.
-            self.assertEqual(lead["location_id"], "us-tx-meeting-minutes")
+            # location_id is not emitted: geography resolves platform-side
+            # via organization_id -> organization_geography.
+            self.assertNotIn("location_id", lead)
             # source_url must deep-link the specific meeting, never bare boardbook.
             self.assertIn("795?meeting=", lead["source_url"])
 
