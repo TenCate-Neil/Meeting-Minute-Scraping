@@ -52,7 +52,9 @@ MAPPING (per project -> one core lead):
                pipelines emit the same key. Orgs with neither fall back to a
                locally-generated slug and are flagged needs_review.
   state/county from the directory (county without the " County" suffix).
-  location_id  derived "us-<state>-meeting-minutes".
+  location_id  NOT emitted: this pipeline has no search areas. Geography
+               resolves platform-side via organization_id -> organization /
+               organization_geography; the sync sends the column as null.
   source_url   deep link to the decision meeting's minutes page, falling back to
                its agenda page when no minutes were posted. URLs come from the
                per-record fields the scraper stamped (platform-correct without
@@ -154,7 +156,9 @@ def compute_external_id(organization: str, project_name: str, project_address: s
     This reproduces the web-search pipeline's external_id byte-for-byte (verified
     against its ledger). Fields are stripped, joined by '|', hashed with SHA-1,
     and the hex digest is truncated to 16 characters. It is the idempotent upsert
-    key: the same project re-exported later yields the same id.
+    key: the same project re-exported later yields the same id. It is also the
+    Supabase lead_entry.entry_id (the sync maps the name at push time), so any
+    change here would re-key every already-synced row — do not change it.
     """
     basis = "|".join(str(v).strip() for v in (organization, project_name, project_address))
     return hashlib.sha1(basis.encode("utf-8")).hexdigest()[:EXTERNAL_ID_LEN]
@@ -622,7 +626,6 @@ def build_lead(hits: list, org_id: str, org_meta: dict, discovered_at: str,
         "evidence_quote": evidence_quote,
         "source_url": source_url,
         "discovered_at": discovered_at,
-        "location_id": f"us-{state.lower()}-meeting-minutes",
         "evidence": evidence,
     }
     return lead, ident

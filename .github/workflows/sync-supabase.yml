@@ -1,9 +1,11 @@
 name: Sync leads to Supabase
 
-# Pushes the lead ledger into the shared Supabase `lead` table whenever it
-# changes on the default branch, plus a manual trigger. Mirrors the web-search
-# agent repo's sync workflow; this repo syncs ONLY the lead table (the
-# organization / search_area / source / run tables are owned by that repo).
+# Pushes the lead ledger into the shared Supabase `lead_entry` staging table
+# (one row per scrape) whenever it changes on the default branch, plus a
+# manual trigger. Mirrors the web-search agent repo's sync workflow; this repo
+# syncs ONLY lead_entry — resolving entries into the `lead` table is a
+# separate platform job, and the organization / search_area / source / run
+# tables are owned by the agent repo.
 #
 # Required repo secrets (Settings -> Secrets and variables -> Actions):
 #   SUPABASE_URL                 e.g. https://<project>.supabase.co
