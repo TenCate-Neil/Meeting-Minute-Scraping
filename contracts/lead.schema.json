@@ -7,7 +7,7 @@
   "additionalProperties": false,
   "required": [
     "external_id", "source", "organization", "state", "county",
-    "summary", "evidence_quote", "source_url", "discovered_at", "location_id"
+    "summary", "evidence_quote", "source_url", "discovered_at"
   ],
   "properties": {
     "external_id": { "type": "string", "minLength": 8 },
@@ -20,7 +20,7 @@
     "evidence_quote": { "type": "string" },
     "source_url": { "type": "string", "minLength": 1 },
     "discovered_at": { "type": "string", "format": "date-time" },
-    "location_id": { "type": "string", "pattern": "^us-[a-z]{2}-[a-z0-9-]+$" },
+    "location_id": { "type": "string", "pattern": "^us-[a-z]{2}-[a-z0-9-]+$", "$comment": "Superseded 2026-07-24: meeting-minutes leads no longer emit a location_id (geography resolves via organization_id -> organization_geography). Kept optional so older ledger records still validate." },
     "evidence": {
       "type": "object",
       "additionalProperties": false,

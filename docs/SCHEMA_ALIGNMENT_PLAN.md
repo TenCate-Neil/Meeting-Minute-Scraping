@@ -89,7 +89,12 @@ Everything below was verified directly against the agent repo (provided
 
 **Status: implemented** (option a). `sync/push_to_supabase.py` +
 `.github/workflows/sync-supabase.yml`, lead table only, upsert on
-`external_id`, lifecycle columns never sent. It also implements gap 2's
+`external_id`, lifecycle columns never sent. **Updated 2026-07-24:** after the
+platform's staging restructure the sync targets `lead_entry` on `entry_id`
+(= the same external_id value); review/resolution/enrichment columns
+(`review_status`, `lead_id`, `observation_type`, `match_confidence`,
+`lead_value_estimation`) are never sent — see README "Pushing leads to
+Supabase". It also implements gap 2's
 FK safety at push time: organization_ids not yet registered in the shared
 organization table are sent as null with a warning, so unreconciled leads
 load instead of being rejected. Verified against the live project: push,
@@ -109,6 +114,12 @@ and `status=New`.
     schema (gap 1), and cross-repo merges add churn.
 
 ### 4. `location_id` — valid but dangling
+
+> **Superseded (2026-07-24):** decided with the platform side — this pipeline
+> emits **no** `location_id` (the sync sends the column as null). Geography
+> resolves via `organization_id` → `organization` / `organization_geography`;
+> the entry's own `state`/`county` columns cover unregistered orgs. The
+> county-level search-area idea below was not implemented.
 
 - This repo derives `us-<state>-meeting-minutes`. The column has no FK, so
   inserts succeed, but the id does not exist in `search_area`, so any Retool
@@ -168,6 +179,9 @@ county-equivalent). BDM county-level filtering runs on
 counties.
 
 ### location_id naming: county-level, not state-level
+
+> **Superseded (2026-07-24):** see the note under gap 4 — no `location_id` is
+> emitted at all; search areas stay an agent-workflow concept.
 
 BDM territories are county-scale, so leads derive
 `us-<state>-<primary-county-slug>-meeting-minutes`
